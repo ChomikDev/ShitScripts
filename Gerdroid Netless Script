@@ -1,0 +1,86 @@
+-- hat netless and antilag script 
+-- made by gerdroid
+
+local Settings = settings()
+local Physics = Settings["Physics"]
+local Workspace = workspace or game:GetService("Workspace")
+local Lighting = Lighting or game:GetService("Lighting")
+local Terrain = Workspace:FindFirstChildOfClass("Terrain")
+local Players = game:GetService("Players")
+local lp = Players.LocalPlayer or Players:WaitForChild("LocalPlayer")
+local char = lp.Character or lp.CharacterAdded:Wait()
+local hum = char.Humanoid or char:FindFirstChildOfClass("Humanoid")
+local hrp = char.HumanoidRootPart or char:FindFirstChild("HumanoidRootPart")
+
+local shp = sethiddenproperty or set_hidden_property or sethiddenprop
+local net = isnetworkowner or function(netpart)
+  return netpart.ReceiveAge == 0
+end
+
+for i,x in next, char:GetDescendants() do
+  if x:IsA("BasePart") and x.Name ~= "HumanoidRootPart" then
+    RunService.Heartbeat:Connect(function()
+      x.Velocity = Vector3.new(-30, 0, 0)
+      shp(x, "NetworkIsSleeping", true)
+    end)
+  elseif x:IsA("Accessory") then
+    x.Handle.Velocity = Vector3.new(0,35,0)
+    shp(x.Handle, "NetworkIsSleeping", true)
+    if isnetworkowner(x.Handle) then
+      print(x.Handle.Parent.Name.." Grabbed!")
+    end
+  end
+end
+RunService.Heartbeat:Connect(function()
+  shp(lp, "SimulationRadius", math.huge)
+  shp(lp, "MaxSimulationRadius", math.huge)
+end)
+pcall(function()
+  setfpscap(1000)
+end)
+
+Workspace.InterpolationThrottling = Enum.InterpolationThrottlingMode.Disabled
+Workspace.Retargeting = "Disabled"
+lp.ReplicationFocus = Workspace
+lp.SimulationRadiusChanged:Connect(function()
+					return Radius == 1e+10
+end)
+
+Physics.PhysicsEnvironmentalThrottle = Enum.EnviromentalPhysicsThrottle.Disabled
+Physics.AllowSleep = false
+Physics.ThrottleAdjustTime = math.huge
+
+Terrain.WaterWaveSize = 0
+Terrain.WaterWaveSpeed = 0
+Terrain.WaterReflectance = 0
+Terrain.WaterTransparency = 0
+Lighting.GlobalShadows = false
+Lighting.FogEnd = 9e9
+Settings.Rendering.QualityLevel = 1
+
+for i,v in pairs(game:GetDescendants()) do
+  if v:IsA("Part") or v:IsA("UnionOperation") or v:IsA("MeshPart") or v:IsA("CornerWedgePart") or v:IsA("TrussPart") then
+    v.Material = "Plastic"
+    v.Reflectance = 0
+  elseif v:IsA("Decal") then
+    v.Transparency = 1
+  elseif v:IsA("ParticleEmitter") or v:IsA("Trail") then
+    v.Lifetime = NumberRange.new(0)
+  elseif v:IsA("Explosion") then
+    v.BlastPressure = 1
+    v.BlastRadius = 1
+  end
+end
+for i,v in pairs(Lighting:GetDescendants()) do
+  if v:IsA("BlurEffect") or v:IsA("SunRaysEffect") or v:IsA("ColorCorrectionEffect") or v:IsA("BloomEffect") or v:IsA("DepthOfFieldEffect") then
+    v.Enabled = false
+  end
+end
+workspace.DescendantAdded:Connect(function(child)
+  for _,Name in next,{"ForceField","Sparkles","Smoke","Fire"} do
+    if child:IsA(Name) then
+      task.defer(game.Destroy,child)
+      break
+    end
+  end
+end)
