@@ -1,0 +1,193 @@
+-- Chomik Executor v1.2
+-- Made by gerdroid 
+
+if game:GetService("CoreGui"):FindFirstChild("Chomik_SS") then
+ game:GetService("CoreGui"):FindFirstChild("Chomik_SS"):Destroy()
+end
+
+local TweenService = game:GetService("TweenService")
+local StarterGui = game:GetService("StarterGui")
+local CoreGui = game:GetService("CoreGui")
+local ChomikGui = Instance.new("ScreenGui")
+ChomikGui.Name = "Chomik_SS"
+ChomikGui.Parent = CoreGui
+
+local MainFrame = Instance.new("Frame")
+MainFrame.Parent = ChomikGui
+MainFrame.BackgroundColor3 = Color3.fromRGB(0, 0, 0)
+MainFrame.BackgroundTransparency = 0.2
+MainFrame.Position = UDim2.new(0.4, 0, 0.4, 0)
+MainFrame.Size = UDim2.new(0, 400, 0, 200)
+MainFrame.Active = true
+MainFrame.Draggable = true
+
+local UICorner = Instance.new("UICorner")
+UICorner.CornerRadius = UDim.new(0, 10)
+UICorner.Parent = MainFrame
+
+local Title = Instance.new("TextLabel")
+Title.Parent = MainFrame
+Title.Text = "Chomik Executor (v.1.5)"
+Title.Font = Enum.Font.SourceSansBold
+Title.TextSize = 24
+Title.Size = UDim2.new(0.7, 0, 0, 35)
+Title.Position = UDim2.new(0.1, 0, 0, 0)
+Title.BackgroundTransparency = 1
+Title.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+local SS = Instance.new("TextBox")
+SS.Parent = MainFrame
+SS.Size = UDim2.new(1, -20, 0, 110)
+SS.Position = UDim2.new(0, 10, 0, 35)
+SS.BackgroundColor3 = Color3.fromRGB(30, 30, 30)
+SS.TextColor3 = Color3.fromRGB(255, 255, 255)
+SS.Font = Enum.Font.Code
+SS.TextSize = 18
+SS.PlaceholderText = "--Enter your script here"
+SS.ClearTextOnFocus = false
+SS.Text = ""
+SS.MultiLine = true
+SS.TextWrapped = true
+
+local SSCorner = Instance.new("UICorner")
+SSCorner.CornerRadius = UDim.new(0, 8)
+SSCorner.Parent = SS
+
+local ExecuteButton = Instance.new("TextButton")
+ExecuteButton.Parent = MainFrame
+ExecuteButton.Size = UDim2.new(0.3, -10, 0, 45)
+ExecuteButton.Position = UDim2.new(0.05, 0, 1, -50)
+ExecuteButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+ExecuteButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ExecuteButton.Font = Enum.Font.SourceSansBold
+ExecuteButton.TextSize = 18
+ExecuteButton.Text = "Execute"
+
+local UICorner1 = Instance.new("UICorner")
+UICorner1.CornerRadius = UDim.new(0, 8)
+UICorner1.Parent = ExecuteButton
+
+local ClearButton = Instance.new("TextButton")
+ClearButton.Parent = MainFrame
+ClearButton.Size = UDim2.new(0.3, -10, 0, 45)
+ClearButton.Position = UDim2.new(0.35, 0, 1, -50)
+ClearButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+ClearButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ClearButton.Font = Enum.Font.SourceSansBold
+ClearButton.TextSize = 18
+ClearButton.Text = "Clear"
+
+local UICorner2 = Instance.new("UICorner")
+UICorner2.CornerRadius = UDim.new(0, 8)
+UICorner2.Parent = ClearButton
+
+local ConsoleButton = Instance.new("TextButton")
+ConsoleButton.Parent = MainFrame
+ConsoleButton.Size = UDim2.new(0.3, -10, 0, 45)
+ConsoleButton.Position = UDim2.new(0.65, 0, 1, -50)
+ConsoleButton.BackgroundColor3 = Color3.fromRGB(50, 50, 50)
+ConsoleButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+ConsoleButton.Font = Enum.Font.SourceSansBold
+ConsoleButton.TextSize = 18
+ConsoleButton.Text = "Console"
+
+local UICorner3 = Instance.new("UICorner")
+UICorner3.CornerRadius = UDim.new(0, 8)
+UICorner3.Parent = ConsoleButton
+
+local CloseButton = Instance.new("TextButton")
+CloseButton.Parent = MainFrame
+CloseButton.Size = UDim2.new(0, 25, 0, 25)
+CloseButton.Position = UDim2.new(1, -30, 0, 5)
+CloseButton.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+CloseButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+CloseButton.Font = Enum.Font.SourceSansBold
+CloseButton.TextSize = 16
+CloseButton.Text = "X"
+
+local UICorner4 = Instance.new("UICorner")
+UICorner4.CornerRadius = UDim.new(0, 5)
+UICorner4.Parent = CloseButton
+
+local MinimizeButton = Instance.new("TextButton")
+MinimizeButton.Parent = MainFrame
+MinimizeButton.Size = UDim2.new(0, 25, 0, 25)
+MinimizeButton.Position = UDim2.new(1, -60, 0, 5) 
+MinimizeButton.BackgroundColor3 = Color3.fromRGB(255, 215, 0)
+MinimizeButton.TextColor3 = Color3.fromRGB(255, 255, 255) 
+MinimizeButton.Font = Enum.Font.SourceSansBold
+MinimizeButton.TextSize = 16
+MinimizeButton.Text = "−"
+
+local Hamster = Instance.new("ImageLabel")
+Hamster.Parent = MainFrame
+Hamster.Size = UDim2.new(0, 40, 0, 40) 
+Hamster.Position = UDim2.new(0, 5, 0, -6)
+Hamster.Image = "rbxassetid://6871067853" 
+Hamster.BackgroundTransparency = 1
+
+local UICornerMinimize = Instance.new("UICorner")
+UICornerMinimize.CornerRadius = UDim.new(0, 5)
+UICornerMinimize.Parent = MinimizeButton
+
+local R6Button = Instance.new("TextButton")
+R6Button.Parent = MainFrame
+R6Button.Size = UDim2.new(0, 25, 0, 25)
+R6Button.Position = UDim2.new(1, -90, 0, 5) 
+R6Button.BackgroundColor3 = Color3.fromRGB(50, 205, 50) -- Салатовый цвет
+R6Button.TextColor3 = Color3.fromRGB(255, 255, 255) 
+R6Button.Font = Enum.Font.SourceSansBold
+R6Button.TextSize = 16
+R6Button.Text = "R6"
+
+local UICornerR6 = Instance.new("UICorner")
+UICornerR6.CornerRadius = UDim.new(0, 5)
+UICornerR6.Parent = R6Button
+
+local introTweenInfo = TweenInfo.new(1, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+local introTween = TweenService:Create(MainFrame, introTweenInfo, {BackgroundTransparency = 0.2})
+local introTitleTween = TweenService:Create(Title, introTweenInfo, {TextTransparency = 0})
+
+MainFrame.BackgroundTransparency = 1
+Title.TextTransparency = 1
+introTween:Play()
+introTitleTween:Play()
+
+ExecuteButton.MouseButton1Click:Connect(function()
+    local scriptCode = SS.Text
+    local success, err = pcall(function()
+        loadstring(scriptCode)()
+    end)
+    if not success then
+      warn("❗️" .. err)
+    end
+    
+  ExecuteButton.Text = "Executed!"
+  task.wait(0.5)
+  ExecuteButton.Text = "Execute"
+  notify("Script Successfully Executed!")
+end)
+
+ClearButton.MouseButton1Click:Connect(function()
+    SS.Text = ""
+    ClearButton.Text = "Cleared!"
+    task.wait(0.5)
+    ClearButton.Text = "Clear"
+end)
+
+ConsoleButton.MouseButton1Click:Connect(function()
+    StarterGui:SetCore("DevConsoleVisible", true)
+end)
+
+R6Button.MouseButton1Click:Connect(function()
+ local h = game.Players.LocalPlayer.Character:FindFirstChildOfClass("Humanoid")
+   if h then
+      h.RigType = Enum.HumanoidRigType.R6
+      h.Health = 0
+   end
+end)
+
+CloseButton.MouseButton1Click:Connect(function()
+  ChomikGui:Destroy()
+    notify("Goodbye :(")
+end)
