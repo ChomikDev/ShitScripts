@@ -1,0 +1,124 @@
+-- First russian chat bypasser ever made 
+-- its beta version of script next update coming soom
+-- Made by Gerdroid (do not skid this plzz)
+
+--// Services \\--
+local ReplicatedStorage = game:GetService("ReplicatedStorage")
+local CoreGui = game:GetService("CoreGui")
+local StarterGui = game:GetService("StarterGui")
+
+--// Local player \\--
+local Players = game:GetService("Players")
+local LP = Players.LocalPlayer
+
+--// Function to send notification \\--
+local function Notify(T1, T2, D)
+    local notificationInfo = {Title = T1, Text = T1, Duration = D}
+    StarterGui:SetCore("SendNotification", notificationInfo)
+end
+
+--// Gui variables \\--
+local UI_Screen = Instance.new("ScreenGui", CoreGui)
+local UI_frame = Instance.new("Frame", UI_Screen)
+local UI_Title = Instance.new("TextLabel", UI_frame)
+local X_button = Instance.new("TextButton", UI_frame)
+local Txt_box = Instance.new("TextBox", UI_frame)
+local ChatMsgButton = Instance.new("TextButton", UI_frame)
+local ClearTxtboxButton = Instance.new("TextButton", UI_frame)
+
+UI_frame.Size = UDim2.new(0, 300, 0, 200)
+UI_frame.Position = UDim2.new(0.5, -150, 0.5, -100)
+UI_frame.BackgroundColor3 = Color3.fromRGB(255, 220, 100)
+UI_frame.Active = true
+UI_frame.Draggable = true
+
+UI_Title.Size = UDim2.new(1, 0, 0, 30)
+UI_Title.Position = UDim2.new(0, 0, 0, 0)
+UI_Title.BackgroundTransparency = 1
+UI_Title.Text = "Gerdroid Bypasser (v.1.5)"
+UI_Title.Font = Enum.Font.SourceSans
+UI_Title.TextSize = 20
+UI_Title.TextColor3 = Color3.fromRGB(0, 0, 0)
+UI_Title.TextStrokeTransparency = 0.5
+
+X_button.Size = UDim2.new(0, 30, 0, 30)
+X_button.Position = UDim2.new(1, -35, 0, 5)
+X_button.BackgroundColor3 = Color3.fromRGB(255, 0, 0)
+X_button.Text = "X"
+X_button.Font = Enum.Font.SourceSansBold
+X_button.TextSize = 20
+X_button.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+Txt_box.Size = UDim2.new(0.90, 0, 0, 60)
+Txt_box.Position = UDim2.new(0.05, 0, 0.3, 0)
+Txt_box.BackgroundColor3 = Color3.fromRGB(255, 255, 255)
+Txt_box.PlaceholderText = "Сообщение"
+Txt_box.ClearTextOnFocus = false
+Txt_box.Text = ""
+Txt_box.Font = Enum.Font.SourceSansBold
+Txt_box.TextSize = 18
+Txt_box.TextColor3 = Color3.fromRGB(0, 0, 0)
+
+ChatMsgButton.Size = UDim2.new(0.4, -5, 0, 40)
+ChatMsgButton.Position = UDim2.new(0.05, 0, 0.7, 0)
+ChatMsgButton.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+ChatMsgButton.Text = "Отправить"
+ChatMsgButton.Font = Enum.Font.SourceSansBold
+ChatMsgButton.TextSize = 18
+ChatMsgButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+ClearTxtboxButton.Size = UDim2.new(0.4, -5, 0, 40)
+ClearTxtboxButton.Position = UDim2.new(0.55, 0, 0.7, 0)
+ClearTxtboxButton.BackgroundColor3 = Color3.fromRGB(150, 150, 150)
+ClearTxtboxButton.Text = "Очистить"
+ClearTxtboxButton.Font = Enum.Font.SourceSansBold
+ClearTxtboxButton.TextSize = 18
+ClearTxtboxButton.TextColor3 = Color3.fromRGB(255, 255, 255)
+
+X_button.MouseButton1Click:Connect(function()
+    UI_Screen:Destroy()
+end)
+
+ClearTxtboxButton.MouseButton1Click:Connect(function()
+    Txt_box.Text = ""
+end)
+
+-- You want skid this too!!
+local replacements = {
+    ["а"] = "a\u{0061}", ["А"] = "A\u{0041}",
+    ["б"] = "б\u{0431}", ["Б"] = "Б\u{0411}",
+    ["е"] = "e\u{0065}", ["Е"] = "E\u{0045}}",
+    ["ё"] = "ё\u{0451}", ["Ё"] = "Ё\u{0401}",
+    ["о"] = "o\u{006F}", ["О"] = "O\u{004F}",
+    ["п"] = "п\u{043F}", ["П"] = "П\u{041F}",
+    ["р"] = "p\u{0070}", ["Р"] = "P\u{0050}",
+    ["с"] = "с\u{0063}", ["С"] = "С\u{0043}",
+    ["т"] = "т\u{0442}", ["Т"] = "Т\u{0422}",
+    ["у"] = "у\u{0443}", ["У"] = "У\u{0423}",
+    ["ф"] = "ф\u{0444}", ["Ф"] = "Ф\u{0424}",
+    ["х"] = "x\u{0054}", ["Х"] = "X\u{0058}",
+}
+
+local function AntiCensorship(input)
+    local output = ""
+    for i = 1, #input do
+        local char = input:sub(i, i)
+        if replacements[char] then
+            output = output .. replacements[char]
+        else
+            output = output .. char
+        end
+    end
+    return output
+end
+
+ChatMsgButton.MouseButton1Click:Connect(function()
+    local msg = AntiCensorship(Txt_box.Text)
+    if msg ~= "" then
+        if game:GetService("TextChatService"):FindFirstChild("TextChannels") then
+            game:GetService("TextChatService").TextChannels.RBXGeneral:SendAsync(msg)
+        else
+            ReplicatedStorage.DefaultChatSystemChatEvents.SayMessageRequest:FireServer(msg, "All")
+        end
+    end
+end)
