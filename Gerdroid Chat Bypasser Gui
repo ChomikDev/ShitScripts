@@ -1,6 +1,5 @@
--- First russian chat bypasser ever made 
--- its beta version of script next update coming soom
--- Made by Gerdroid (do not skid this plzz)
+-- First russian chat bypasser ever made
+-- btw gui from chatgpt
 
 --// Services \\--
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
@@ -13,7 +12,7 @@ local LP = Players.LocalPlayer
 
 --// Function to send notification \\--
 local function Notify(T1, T2, D)
-    local notificationInfo = {Title = T1, Text = T1, Duration = D}
+    local notificationInfo = {Title = T1, Text = T2, Duration = D}
     StarterGui:SetCore("SendNotification", notificationInfo)
 end
 
@@ -35,7 +34,7 @@ UI_frame.Draggable = true
 UI_Title.Size = UDim2.new(1, 0, 0, 30)
 UI_Title.Position = UDim2.new(0, 0, 0, 0)
 UI_Title.BackgroundTransparency = 1
-UI_Title.Text = "Gerdroid Bypasser (v.1.5)"
+UI_Title.Text = "Gerdroid Bypasser (v.2.0)"
 UI_Title.Font = Enum.Font.SourceSans
 UI_Title.TextSize = 20
 UI_Title.TextColor3 = Color3.fromRGB(0, 0, 0)
@@ -83,33 +82,30 @@ ClearTxtboxButton.MouseButton1Click:Connect(function()
     Txt_box.Text = ""
 end)
 
--- You want skid this too!!
 local replacements = {
-    ["а"] = "a\u{0061}", ["А"] = "A\u{0041}",
-    ["б"] = "б\u{0431}", ["Б"] = "Б\u{0411}",
-    ["е"] = "e\u{0065}", ["Е"] = "E\u{0045}}",
-    ["ё"] = "ё\u{0451}", ["Ё"] = "Ё\u{0401}",
-    ["о"] = "o\u{006F}", ["О"] = "O\u{004F}",
-    ["п"] = "п\u{043F}", ["П"] = "П\u{041F}",
-    ["р"] = "p\u{0070}", ["Р"] = "P\u{0050}",
-    ["с"] = "с\u{0063}", ["С"] = "С\u{0043}",
-    ["т"] = "т\u{0442}", ["Т"] = "Т\u{0422}",
-    ["у"] = "у\u{0443}", ["У"] = "У\u{0423}",
-    ["ф"] = "ф\u{0444}", ["Ф"] = "Ф\u{0424}",
-    ["х"] = "x\u{0054}", ["Х"] = "X\u{0058}",
+    ["а"] = "а\u{0430}", ["б"] = "б\u{0431}", ["в"] = "в\u{0432}", ["г"] = "г\u{0433}", 
+    ["д"] = "д\u{0434}", ["е"] = "е\u{0435}", ["ё"] = "ё\u{0451}", ["ж"] = "ж\u{0436}",
+    ["з"] = "з\u{0437}", ["и"] = "и\u{0438}", ["й"] = "й\u{0439}", ["к"] = "к\u{043A}",
+    ["л"] = "л\u{043B}", ["м"] = "м\u{043C}", ["н"] = "н\u{043D}", ["о"] = "о\u{043E}",
+    ["п"] = "п\u{043F}", ["р"] = "р\u{0440}", ["с"] = "с\u{0441}", ["т"] = "т\u{0442}",
+    ["у"] = "у\u{0443}", ["ф"] = "ф\u{0444}", ["х"] = "х\u{0445}", ["ц"] = "ц\u{0446}",
+    ["ч"] = "ч\u{0447}", ["ш"] = "ш\u{0448}", ["щ"] = "щ\u{0449}", ["ъ"] = "ъ\u{044A}",
+    ["ы"] = "ы\u{044B}", ["ь"] = "ь\u{044C}", ["э"] = "э\u{044D}", ["ю"] = "ю\u{044E}",
+    ["я"] = "я\u{044F}",
+
+    ["А"] = "А\u{0410}", ["Б"] = "Б\u{0411}", ["В"] = "В\u{0412}", ["Г"] = "Г\u{0413}",
+    ["Д"] = "Д\u{0414}", ["Е"] = "Е\u{0415}", ["Ё"] = "Ё\u{0401}", ["Ж"] = "Ж\u{0416}",
+    ["З"] = "З\u{0417}", ["И"] = "И\u{0418}", ["Й"] = "Й\u{0419}", ["К"] = "К\u{041A}",
+    ["Л"] = "Л\u{041B}", ["М"] = "М\u{041C}", ["Н"] = "Н\u{041D}", ["О"] = "О\u{041E}",
+    ["П"] = "П\u{041F}", ["Р"] = "Р\u{0420}", ["С"] = "С\u{0421}", ["Т"] = "Т\u{0422}",
+    ["У"] = "У\u{0423}", ["Ф"] = "Ф\u{0424}", ["Х"] = "Х\u{0425}", ["Ц"] = "Ц\u{0426}",
+    ["Ч"] = "Ч\u{0427}", ["Ш"] = "Ш\u{0428}", ["Щ"] = "Щ\u{0429}", ["Ъ"] = "Ъ\u{042A}",
+    ["Ы"] = "Ы\u{042B}", ["Ь"] = "Ь\u{042C}", ["Э"] = "Э\u{042D}", ["Ю"] = "Ю\u{042E}",
+    ["Я"] = "Я\u{042F}",
 }
 
 local function AntiCensorship(input)
-    local output = ""
-    for i = 1, #input do
-        local char = input:sub(i, i)
-        if replacements[char] then
-            output = output .. replacements[char]
-        else
-            output = output .. char
-        end
-    end
-    return output
+    return input:gsub(".", replacements)
 end
 
 ChatMsgButton.MouseButton1Click:Connect(function()
