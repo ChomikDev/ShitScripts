@@ -1,0 +1,342 @@
+-- Simple test UNC script made by Gerdroid
+-- Thanks to DumbyDev for help!
+
+local krnl, syn, sw, electron, fluxus = getgenv().krnl, getgenv().syn, getgenv().sw, getgenv().electron, getgenv().fluxus
+--if not krnl or syn or sw or electron or fluxus then return end
+
+local Working_Scripts = 0
+local UnWorking_Scripts = 0
+
+local sethiddenproperty = sethiddenproperty
+local gethiddenproperty = gethiddenproperty
+local isnetworkowner = isnetworkowner
+local setclipboard = setclipboard
+local getclipboard = getclipboard
+local toclipboard = toclipboard
+local writeclipboard = writeclipboard
+local makefolder = makefolder
+local writefile = writefile
+local appendfile = appendfile
+local loadfile = loadfile
+local isfolder = isfolder
+local isfile = isfile
+local readfile = readfile
+local listfiles = listfiles
+local delfile = delfile
+local delfolder = delfolder
+local getgenv = getgenv
+local getfenv = getfenv
+local getsenv = getsenv
+local getreg = getreg
+local getgc = getgc
+local getrenv = getrenv
+local getglobals = getglobals
+local setglobals = setglobals
+local setfenv = setfenv
+local isscriptable = isscriptable
+local iswriteable = iswriteable
+local isrenderobj = isrenderobj
+local setrenderproperty = setrenderproperty
+local setsimulationradius = setsimulationradius
+local gethui = gethui
+local getidentify = getidentify
+local getinstances = getinstances
+local getnilinstances = getnilinstances
+local rconsolesettitle = rconsolesettitle
+local rconsoleprint = rconsoleprint
+local rconsoleerr = rconsoleerr
+local rconsolewarn = rconsolewarn
+local rconsolecreate = rconsolecreate
+local rconsoledestroy = rconsoledestroy
+local rconsoleclear = rconsoleclear
+local rconsoleinput = rconsoleinput
+local consolesettitle = consolesettitle
+local consoleprint = consoleprint
+local consoleerr = consoleerr
+local consolewarn = consolewarn
+local consolecreate = consolecreate
+local consoledestroy = consoledestroy
+local consoleclear = consoleclear
+local consoleinput = consoleinput
+local getrunningscripts = getrunningscripts
+local getscripthash = getscripthash
+local getfunctionhash = getfunctionhash
+local getscriptbytecode = getscriptbytecode
+local hookfunction = hookfunction
+local loadstring = loadstring
+local require = require
+local decompile = decompile
+local isgameactive = isgameactive
+local isrbxactive = isrbxactive
+local dumpinstance = dumpinstance
+local saveinstance = saveinstance
+local setrbxclipboard = setrbxclipboard
+local getthreadidentity = getthreadidentity
+local setthreadidentity = setthreadidentity
+local getsynasset = getsynasset
+local getcustomasset = getcustomasset
+local clonefunction = clonefunction
+local clonefunc = clonefunc
+local islclosure = islclosure
+local isourclosure = isourclosure
+local iscclosure = iscclosure
+local newcclosure = newcclosure
+local iskrnlclosure = iskrnlclosure
+local issynclosure = issynclosure
+local getscripts = getscripts
+local get_scripts = get_scripts
+local getexecutorname = getexecutorname
+local getprotectedguis = getprotectedguis
+local getmodules = getmodules
+local getloadedmodules = getloadedmodules
+local readonly = readonly
+local setreadonly = setreadonly
+local isreadonly = isreadonly
+local getrawmetatable = getrawmetatable
+local setrawmetatable = setrawmetatable
+local is_l_closure = is_l_closure
+local isexecclosure = isexecclosure
+local isexecutorclosure = isexecutorclosure
+local getscriptclosure = getscriptclosure
+local checkclosure = checkclosure
+local is_exploit_function = is_exploit_function
+local is_synapse_function = is_synapse_function
+local getcallingscript = getcallingscript
+local hookmetamethod = hookmetamethod
+local unhookmetamethod = unhookmetamethod
+local isfunctionhooked = isfunctionhooked
+local ishooked = ishooked
+local fireserver = fireserver
+local fireclient = fireclient
+local firesignal = firesignal
+local cansignalreplicate = cansignalreplicate
+local getsignalarguments = getsignalarguments
+local restorefunction = restorefunction
+local queue_on_teleport = queue_on_teleport
+local getthreadcontext = getthreadcontext
+local protect_gui = protect_gui
+local unprotect_gui = unprotect_gui
+local getmetatable = getmetatable
+local setmetatable = setmetatable
+local checkmetatable = checkmetatable
+local spoofmetatable = spoofmetatable
+local readprotectedfile = readprotectedfile
+local writeprotectedfile = writeprotectedfile
+local setfflag = setfflag
+local getfflag = getfflag
+local WebSocket = WebSocket
+local replacesclosure = replacesclosure
+local hookfunc = hookfunc
+local fireclickdetector = fireclickdetector
+local fireproximityprompt = fireproximityprompt
+local firetouchinterest = firetouchinterest
+local replicatesignal = replicatesignal
+local getrenderproperty = getrenderproperty
+local Drawing = Drawing
+local cleardrawcache = cleardrawcache
+local setfpscap = setfpscap
+local getcaller = getcaller
+local checkcaller = checkcaller
+local getconnections = getconnections
+local disableconnection = disableconnection
+local enableconnection = enableconnection
+local traceback = traceback
+local getstack = getstack
+local mouse1press = mouse1press
+local mouse2press = mouse2press
+local mouse1click = mouse1click
+local mouse2click = mouse2click
+local mouse1release = mouse1release
+local mouse2release = mouse2release
+local mousescroll = mousescroll
+local keypress = keypress
+local keyrelease = keyrelease
+local mousemove = mousemove
+local mousemoveabs = mousemoveabs
+local mousemoverel = mousemoverel
+local cloneref = cloneref
+local cache = cache
+local crypt = crypt
+local getnamecallmethod = getnamecallmethod
+local setnamecallmethod = setnamecallmethod
+local getcallbackvalue = getcallbackvalue
+local httpget = httpget
+local httppost = httppost
+
+print("Running Simple UNC Checker v.1.0.4 !!!")
+print("✅️-Working 📛-Not supported")  
+    
+local function test(name, func)
+    if func ~= nil then 
+        print("(✅️) "..name)
+        Working_Scripts = Working_Scripts + 1
+    else
+        print("(📛) "..name)
+        UnWorking_Scripts = UnWorking_Scripts + 1
+    end
+end
+
+game:GetService("StarterGui"):SetCore("DevConsoleVisible", true)
+
+task.spawn(function()
+    test("sethiddenproperty", sethiddenproperty)
+    test("gethiddenproperty", gethiddenproperty)
+    test("isnetworkowner", isnetworkowner)
+    test("setclipboard", setclipboard)
+    test("getclipboard", getclipboard)
+    test("toclipboard", toclipboard)
+    test("writeclipboard", writeclipboard)
+    test("makefolder", makefolder)
+    test("writefile", writefile)
+    test("appendfile", appendfile)
+    test("loadfile", loadfile)
+    test("isfolder", isfolder)
+    test("isfile", isfile)
+    test("readfile", readfile)
+    test("listfiles", listfiles)
+    test("delfile", delfile)
+    test("delfolder", delfolder)
+    test("getgenv", getgenv)
+    test("getfenv", getfenv)
+    test("getsenv", getsenv)
+    test("getreg", getreg)
+    test("getgc", getgc)
+    test("getrenv", getrenv)
+    test("getglobals", getglobals)
+    test("setglobals", setglobals)
+    test("setfenv", setfenv)
+    test("isscriptable", isscriptable)
+    test("iswriteable", iswriteable)
+    test("isrenderobj", isrenderobj)
+    test("setrenderproperty", setrenderproperty)
+    test("setsimulationradius", setsimulationradius)
+    test("gethui", gethui)
+    test("getidentify", getidentify)
+    test("getinstances", getinstances)
+    test("getnilinstances", getnilinstances)
+    test("rconsolesettitle", rconsolesettitle)
+    test("rconsoleprint", rconsoleprint)
+    test("rconsoleerr", rconsoleerr)
+    test("rconsolewarn", rconsolewarn)
+    test("rconsolecreate", rconsolecreate)
+    test("rconsoledestroy", rconsoledestroy)
+    test("rconsoleclear", rconsoleclear)
+    test("rconsoleinput", rconsoleinput)
+    test("consolesettitle", consolesettitle)
+    test("consoleprint", consoleprint)
+    test("consoleerr", consoleerr)
+    test("consolewarn", consolewarn)
+    test("consolecreate", consolecreate)
+    test("consoledestroy", consoledestroy)
+    test("consoleclear", consoleclear)
+    test("consoleinput", consoleinput)
+    test("isexecutorclosure", isexecutorclosure)
+    test("getrunningscripts", getrunningscripts)
+    test("getscripthash", getscripthash)
+    test("getfunctionhash", getfunctionhash)
+    test("getscriptbytecode", getscriptbytecode)
+    test("hookfunction", hookfunction)
+    test("loadstring", loadstring)
+    test("require", require)
+    test("decompile", decompile)
+    test("isgameactive", isgameactive)
+    test("isrbxactive", isrbxactive)
+    test("dumpinstance", dumpinstance)
+    test("saveinstance", saveinstance)
+    test("setrbxclipboard", setrbxclipboard)
+    test("getthreadidentity", getthreadidentity)
+    test("setthreadidentity", setthreadidentity)
+    test("getsynasset", getsynasset)
+    test("getcustomasset", getcustomasset)
+    test("clonefunction", clonefunction)
+    test("clonefunc", clonefunc)
+    test("islclosure", islclosure)
+    test("isourclosure", isourclosure)
+    test("iscclosure", iscclosure)
+    test("newcclosure", newcclosure)
+    test("iskrnlclosure", iskrnlclosure)
+    test("issynclosure", issynclosure)
+    test("getscripts", getscripts)
+    test("get_scripts", get_scripts)
+    test("getexecutorname", getexecutorname)
+    test("getprotectedguis", getprotectedguis)
+    test("getmodules", getmodules)
+    test("getloadedmodules", getloadedmodules)
+    test("readonly", readonly)
+    test("setreadonly", setreadonly)
+    test("isreadonly", isreadonly)
+    test("getrawmetatable", getrawmetatable)
+    test("setrawmetatable", setrawmetatable)
+    test("is_l_closure", is_l_closure)
+    test("isexecclosure", isexecclosure)
+    test("isexecutorclosure", isexecutorclosure)
+    test("getscriptclosure", getscriptclosure)
+    test("checkclosure", checkclosure)
+    test("is_exploit_function", is_exploit_function)
+    test("is_synapse_function", is_synapse_function)
+    test("getcallingscript", getcallingscript)
+    test("hookmetamethod", hookmetamethod)
+    test("unhookmetamethod", unhookmetamethod)
+    test("isfunctionhooked", isfunctionhooked)
+    test("ishooked", ishooked)
+    test("fireserver", fireserver)
+    test("fireclient", fireclient)
+    test("firesignal", firesignal)
+    test("cansignalreplicate", cansignalreplicate)
+    test("getsignalarguments", getsignalarguments)
+    test("restorefunction", restorefunction)
+    test("queue_on_teleport", queue_on_teleport)
+    test("getthreadcontext", getthreadcontext)
+    test("protect_gui", protect_gui)
+    test("unprotect_gui", unprotect_gui)
+    test("getmetatable", getmetatable)
+    test("setmetatable", setmetatable)
+    test("checkmetatable", checkmetatable)
+    test("spoofmetatable", spoofmetatable)
+    test("readprotectedfile", readprotectedfile)
+    test("writeprotectedfile", writeprotectedfile)
+    test("setfflag", setfflag)
+    test("getfflag", getfflag)
+    test("WebSocket", WebSocket)
+    test("replacesclosure", replacesclosure)
+    test("hookfunc", hookfunc)
+    test("fireclickdetector", fireclickdetector)
+    test("fireproximityprompt", fireproximityprompt)
+    test("firetouchinterest", firetouchinterest)
+    test("replicatesignal", replicatesignal)
+    test("getrenderproperty", getrenderproperty)
+    test("Drawing", Drawing)
+    test("cleardrawcache", cleardrawcache)
+    test("setfpscap", setfpscap)
+    test("getcaller", getcaller)
+    test("checkcaller", checkcaller)
+    test("getconnections", getconnections)
+    test("disableconnection", disableconnection)
+    test("enableconnection", enableconnection)
+    test("traceback", traceback)
+    test("getstack", getstack)
+    test("mouse1press", mouse1press)
+    test("mouse2press", mouse2press)
+    test("mouse1click", mouse1press)
+    test("mouse2click", mouse2press)
+    test("mouse1release", mouse1release)
+    test("mouse2release", mouse2release)
+    test("mousescroll", mousescroll)
+    test("keypress", keypress)
+    test("keyrelease", keyrelease)
+    test("mousemove", mousemove)
+    test("mousemoveabs", mousemoveabs)
+    test("mousemoverel", mousemoverel)
+    test("cloneref", cloneref)
+    test("cache", cache)
+    test("crypt", crypt)
+    test("getnamecallmethod", getnamecallmethod)
+    test("setnamecallmethod", setnamecallmethod)
+    test("getcallbackvalue", getcallbackvalue)
+    test("httpget", httpget)
+    test("httppost", httppost)
+    
+    print("Tested more functions!")
+    print("Result; ✅️:"..Working_Scripts.." 📛:"..UnWorking_Scripts)
+    print(Working_Scripts.." working functions of 130")
+end)
