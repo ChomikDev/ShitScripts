@@ -1,0 +1,236 @@
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/NICKISBAD/Nick-s-Modded-KAVO-Lib/main/Nick'sModdedKavoLib.lua"))()
+        
+local Window = Library.CreateLib("ChomikHub (v.1) - Moderators Are Epical", "BloodTheme")
+
+local Scripts = Window:NewTab("Scripts")
+        
+local Section = Scripts:NewSection("Scripts Stuff")
+
+Section:NewToggle("Antifling", "", function(af)
+  if af then
+    local RunService = game:GetService("RunService")
+    local Players = game:GetService("Players")
+    local plr = Players.LocalPlayer
+    AntiFlingEnabled = true
+  
+  local function setCanCollideOfModelDescendants(model, bval)
+    if not model then
+      return
+    end
+    
+    for i, v in pairs(model:GetDescendants()) do
+      if v:IsA("BasePart") then
+        v.CanCollide = bval
+      end
+    end
+  end
+  
+  for i, v in pairs(Players:GetPlayers()) do
+    if v ~= Players.LocalPlayer then
+      RunService.Stepped:Connect(function()
+        if not AntiFlingEnabled then
+          return
+        end
+        
+        setCanCollideOfModelDescendants(v.Character, false)
+      end)
+    end
+  end
+  
+  Players.PlayerAdded:Connect(function(plr)
+    RunService.Stepped:Connect(function()
+      if not AntiFlingEnabled then
+        return
+      end
+      setCanCollideOfModelDescendants(plr.Character, false)
+    end)
+  end)
+  else
+    AntiFlingEnabled = false
+  end
+end)       
+
+Section:NewToggle("Walkfling", "", function(hf)
+  if hf then
+    if game:GetService("ReplicatedStorage"):FindFirstChild("juisdfj0i32i0eidsuf0iok") then
+      hiddenfling = true
+    else
+      hiddenfling = true
+      detection = Instance.new("Decal")
+      detection.Name = "juisdfj0i32i0eidsuf0iok"
+      detection.Parent = game:GetService("ReplicatedStorage")
+      
+      local function fling()
+        local hrp, c, vel, movel = nil, nil, nil, 0.1
+        while true do
+          game:GetService("RunService").Heartbeat:Wait()
+          if hiddenfling then
+            local lp = game.Players.LocalPlayer
+            while hiddenfling and not (c and c.Parent and hrp and hrp.Parent) do
+              game:GetService("RunService").Heartbeat:Wait()
+              c = lp.Character
+              hrp = c:FindFirstChild("HumanoidRootPart") or c:FindFirstChild("Torso") or c:FindFirstChild("UpperTorso")
+            end
+            
+            if hiddenfling then
+              vel = hrp.Velocity
+              hrp.Velocity = vel * 10000 + Vector3.new(0, 10000, 0)
+              game:GetService("RunService").RenderStepped:Wait()
+              
+              if c and c.Parent and hrp and hrp.Parent then
+                hrp.Velocity = vel
+              end
+              
+              game:GetService("RunService").Stepped:Wait()
+              if c and c.Parent and hrp and hrp.Parent then
+                hrp.Velocity = vel + Vector3.new(0, movel, 0)
+                movel = movel * -1
+              end
+            end
+          end
+        end
+      end
+      fling()
+    end
+  else
+    hiddenfling = false
+  end
+end)
+  
+Section:NewButton("Antibang", "", function()
+local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+
+workspace.FallenPartsDestroyHeight = -1000
+local lastCFrame = hrp.CFrame
+
+hrp.CFrame = CFrame.new(Vector3.new(0, -500, 0))
+task.wait(0.7)
+hrp.CFrame = lastCFrame
+workspace.FallenPartsDestroyHeight = -500
+end)         
+
+local Sounds = Window:NewTab("Sounds")
+
+local Section = Sounds:NewSection("Sounds Stuff")
+
+Section:NewToggle("Spam Sounds", "", function(ss)
+    if ss then
+        local RFE = game:GetService("SoundService").RespectFilteringEnabled
+        if RFE == false then
+            sspam = true
+            while sspam do
+                task.wait()
+                for _, sound in pairs(workspace:GetDescendants()) do
+                    if sound:IsA("Sound") then
+                        sound:Play()
+                    end
+                end
+            end
+        end
+    else
+        sspam = false
+    end
+end)
+
+Section:NewToggle("Glitch Sounds", "", function(gs)
+    if gs then
+        local RFE = game:GetService("SoundService").RespectFilteringEnabled
+        if RFE == false then
+            gsound = true
+            local sounds = {}
+
+            for _, v in pairs(game:GetDescendants()) do
+                if v:IsA("Sound") then
+                    table.insert(sounds, v)
+                end
+            end
+
+            local con
+            con = game.DescendantAdded:Connect(function(v)
+                if v:IsA("Sound") then
+                    table.insert(sounds, v)
+                end
+            end)
+
+            while gsound do
+                for _, v in pairs(sounds) do
+                    v:Play()
+                    v.TimePosition = math.random(0, v.TimeLength * 1000) / 1000
+                    task.wait()
+                end
+            end
+
+            con:Disconnect()
+            for _, v in pairs(sounds) do
+                v:Stop()
+            end
+        end
+    else
+        gsound = false
+    end
+end)
+
+Section:NewToggle("Mute Sounds", "", function(ms)
+    if ms then
+        local RFE = game:GetService("SoundService").RespectFilteringEnabled
+        if RFE == false then
+            Mute = true
+            while Mute do
+                task.wait()
+                for _, sound in pairs(workspace:GetDescendants()) do
+                    if sound:IsA("Sound") then
+                        sound:Stop()
+                    end
+                end
+            end
+        end
+    else
+        Mute = false
+    end
+end)
+  
+local Teleports = Window:NewTab("Teleport")
+
+local Section = Teleports:NewSection("Teleport Stuff")
+
+Section:NewButton("Spawn Location", "", function()
+ local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+ local pos = CFrame.new(18, 3, -37)
+  hrp.CFrame = pos
+end)
+
+Section:NewButton("Secret Land", "", function()
+ local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+ local pos = CFrame.new(38, 6, 1657)
+  hrp.CFrame = pos
+end)
+
+Section:NewButton("Racing Car", "", function()
+ local hrp = game.Players.LocalPlayer.Character.HumanoidRootPart
+ local pos = CFrame.new(20, 3, 814)
+  hrp.CFrame = pos
+end)
+
+local Misc = Window:NewTab("Visual")
+
+local Section = Misc:NewSection("Visual Stuff")
+
+Section:NewButton("Remove Npcs", "", function()
+  for _, mod in ipairs(workspace:GetDescendants()) do
+    if mod:IsA("Model") and mod.Name == "" then
+      mod:Destroy()
+    end
+  end
+end)
+
+local Admins = Window:NewTab("Admin")
+
+local Section = Admins:NewSection("Admin Stuff")
+
+Section:NewButton("Infinity Yeild Reborn", "", function()
+  loadstring(game:HttpGet(('https://raw.githubusercontent.com/RyXeleron/infiniteyield-reborn/refs/heads/scriptblox/source' or 'https://ryxeleron.github.io/storage/iyrbackup/legacy/scriptblox/source')))()
+end)
+
+Section:NewButton("Namless Admin", "", function()
+  loadstring(game:HttpGet('https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source'))()
+end)
