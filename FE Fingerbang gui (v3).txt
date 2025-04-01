@@ -375,7 +375,6 @@ FingerButton.MouseButton1Click:Connect(function()
       cam.CameraSubject = targplr.Character:WaitForChild("Humanoid")
       hum.Health = 0
       hrp:Destroy()
-      head:Destroy()
       
       if Touch == true then
         loopfingeranim2()
