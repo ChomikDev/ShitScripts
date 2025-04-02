@@ -1,6 +1,5 @@
 --[[
-FE FINGERBANG GUI MADE BY GERDLUA
-Works only on exploits which supports replicatesignal or firesignal function
+Fe Fingerbang gui made by gerdlua
 for the script to work you need this accessory: https://www.roblox.com/catalog/6470135113/Fan-Hand-Sign-Why-Dont-We-WDW
 ]]--
 
@@ -23,6 +22,8 @@ local ang, ang2 = CFrame.Angles(math.rad(-90), math.rad(90), 0), CFrame.Angles(m
 local FTouch = false
 local DTouch = false
 local Touch = false
+
+local permadeath = false
 
 if CoreGui:FindFirstChild("FingerGui") then
   CoreGui:FindFirstChild("FingerGui"):Destroy()
@@ -180,11 +181,15 @@ end
 FingerButton.MouseButton1Click:Connect(function()
   local targplr = findPlayer(Targetbox.Text)
   
-  notify("Loading perm death..", "Please dont spam click button, finger script is loading.", 3)
-  if not repsignal then notify("Unsupported Exploit", "Try Delta, CeleryZ, Nebula, FrostWar") end
-  repsignal(lp.ConnectDiedSignalBackend)
-  task.wait(Players.RespawnTime + .1)
+  if repsignal then
+    repsignal(lp.ConnectDiedSignalBackend)
+    permadeath = true
+  end
+  
   if targplr then
+    notify("Loading perm death..", "Please dont spam click button, finger script is loading.", 3)
+    task.wait(Players.RespawnTime + .1)
+
     local lp = Players.LocalPlayer or Players:WaitForChild("LocalPlayer")
     local char = lp.Character or lp.CharacterAdded:Wait()
     local hum = char:FindFirstChildOfClass("Humanoid")
@@ -193,7 +198,7 @@ FingerButton.MouseButton1Click:Connect(function()
 
     local Finger = char["WDW_FoamFinger"]
     local FoamFinger = Finger.Handle
-    if not FoamFinger then print("You dont weared item!") end
+    if not FoamFinger then notify("You dont weared item!") return end
         
     for i,v in next, char:GetDescendants() do
       if v:IsA("BasePart") and v.Name ~= "HumanoidRootPart" then
@@ -225,20 +230,19 @@ FingerButton.MouseButton1Click:Connect(function()
     
     local attachfb = Instance.new("Attachment", fakebody)
     local attachff = Instance.new("Attachment", FoamFinger)
-    
     local alighpos = Instance.new("AlignPosition", FoamFinger)
     alighpos.Attachment0 = attachff
     alighpos.Attachment1 = attachfb
     alighpos.RigidityEnabled = false
     alighpos.MaxForce = math.pow(math.huge, math.huge) * math.huge
-    alighpos.Responsiveness = 500
+    alighpos.Responsiveness = 200
     
     local alignorien = Instance.new("AlignOrientation", FoamFinger)
     alignorien.Attachment0 = attachff
     alignorien.Attachment1 = attachfb
     alignorien.RigidityEnabled = false
     alignorien.MaxTorque = math.pow(math.huge, math.huge) * math.huge
-    alignorien.Responsiveness = 500
+    alignorien.Responsiveness = 200
     
     local function loopfingeranim()
       while FTouch do
@@ -360,6 +364,7 @@ FingerButton.MouseButton1Click:Connect(function()
       DTouch = true
       loopfingeranim3()
     end)
+    
     lp.Chatted:Connect(function(fingermsg)
       local args = string.split(fingermsg, " ")
       if args[1]=="!speed" and args[2] then
@@ -383,9 +388,25 @@ FingerButton.MouseButton1Click:Connect(function()
     
     Touch = true
     local function loopbang()
-      cam.CameraSubject = targplr.Character:WaitForChild("Humanoid")
+      if not repsignal then
+        while targetplr do
+          secondplrs = game:GetService("Players")
+          secondplr = secondplrs.LocalPlayer or secondplrs:WaitForChild("LocalPlayer")
+          secondchar = secondplr.Character or secondplr.CharacterAdded:Wait()
+          secondhrp = secondchar:WaitForChild("HumanoidRootPart")
+          secondhum = secondchar:WaitForChild("Humanoid")
+          if secondhrp then
+            secondhrp.CFrame = secondhrp.CFrame * CFrame.new(0, -499, 0)
+            secondhum.Health = 0
+            wait(secondplrs.RespawnTime)
+            wait(.1)
+          end
+        end
+      end
+      
       hum.Health = 0
-      hrp:Destroy()
+      cam.CameraSubject = nil
+      cam.CameraSubject = targplr.Character:WaitForChild("Humanoid")
       
       if Touch == true then
         loopfingeranim2()
@@ -404,4 +425,4 @@ FingerButton.MouseButton1Click:Connect(function()
 end)
 
 notify("Commands", "Cmds is: !speed [num] and !rejoin")
-notify("Credits", "FE Finger made by GerdYT")
+notify("Credits", "FE Finger made by GerdLua")
