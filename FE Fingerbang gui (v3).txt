@@ -1,8 +1,8 @@
 --[[
-Fe Fingerbang gui made by gerdlua
-for the script to work you need this accessory: https://www.roblox.com/catalog/6470135113/Fan-Hand-Sign-Why-Dont-We-WDW
+fingerbang gui credits to gerdlua (works with permadeath in exploits which support replicatesignal or firesignal function)
+for script you need this accessory: https://www.roblox.com/catalog/6470135113/Fan-Hand-Sign-Why-Dont-We-WDW
+if you dont have this item you can get it here: 
 ]]--
-
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Settings = settings()
 local Physics = Settings["Physics"]
@@ -19,10 +19,10 @@ local repsignal = replicatesignal or firesignal
 local cam = workspace.CurrentCamera
 local delay = 0.01
 local ang, ang2 = CFrame.Angles(math.rad(-90), math.rad(90), 0), CFrame.Angles(math.rad(90), math.rad(-90), 0)
+
 local FTouch = false
 local DTouch = false
 local Touch = false
-
 local permadeath = false
 
 if CoreGui:FindFirstChild("FingerGui") then
@@ -185,7 +185,6 @@ FingerButton.MouseButton1Click:Connect(function()
     repsignal(lp.ConnectDiedSignalBackend)
     permadeath = true
   end
-  
   if targplr then
     notify("Loading perm death..", "Please dont spam click button, finger script is loading.", 3)
     task.wait(Players.RespawnTime + .1)
@@ -195,6 +194,7 @@ FingerButton.MouseButton1Click:Connect(function()
     local hum = char:FindFirstChildOfClass("Humanoid")
     local hrp = char:FindFirstChild("HumanoidRootPart")
     local cam = workspace.CurrentCamera
+    local repsignal = replicatesignal or firesignal
 
     local Finger = char["WDW_FoamFinger"]
     local FoamFinger = Finger.Handle
@@ -210,7 +210,7 @@ FingerButton.MouseButton1Click:Connect(function()
     RunService.Heartbeat:Connect(function()
       for z,x in pairs(char:GetChildren()) do
         if x:IsA("Accessory") then
-          x.Handle.Velocity = Vector3.new(0,35,0)
+          x.Handle.Velocity = Vector3.new(0, 35, 0)
         end
       end
     end)
@@ -235,14 +235,14 @@ FingerButton.MouseButton1Click:Connect(function()
     alighpos.Attachment1 = attachfb
     alighpos.RigidityEnabled = false
     alighpos.MaxForce = math.pow(math.huge, math.huge) * math.huge
-    alighpos.Responsiveness = 200
+    alighpos.Responsiveness = 1000
     
     local alignorien = Instance.new("AlignOrientation", FoamFinger)
     alignorien.Attachment0 = attachff
     alignorien.Attachment1 = attachfb
     alignorien.RigidityEnabled = false
     alignorien.MaxTorque = math.pow(math.huge, math.huge) * math.huge
-    alignorien.Responsiveness = 200
+    alignorien.Responsiveness = 1000
     
     local function loopfingeranim()
       while FTouch do
@@ -373,23 +373,20 @@ FingerButton.MouseButton1Click:Connect(function()
           alignorien.Responsiveness = fingerbangspeed * 1000
           alighpos.Responsiveness = fingerbangspeed * 1000
         end
-      elseif args[1]=="!rj" or args[1]=="!rejoin" then
-        task.wait(delay+.01)
-        local Teleport = Teleport
-        local TeleportToPlaceInstance = TeleportToPlaceInstance
-        if Teleport then
-          TeleportService:Teleport(PlaceId, lp)
-        elseif TeleportToPlaceInstance then
-          TeleportService:TeleportToPlaceInstance(PlaceId, JobId, lp)
+      elseif args[1]=="!ra" or args[1]=="!receiveage" then
+        for _,acs in pairs(char:GetChildren()) do
+          if acs:IsA("Accessory") then
+            print("Accessory Receive Age:" .. acs.Handle.ReceiveAge)
+          end
         end
-        task.wait(delay+.01)
       end
     end)
     
     Touch = true
     local function loopbang()
       if not repsignal then
-        while targetplr do
+        local secondplrs, secondplr, secondchar, secondhrp, secondhum = nil, nil, nil, nil, nil
+        while lp do
           secondplrs = game:GetService("Players")
           secondplr = secondplrs.LocalPlayer or secondplrs:WaitForChild("LocalPlayer")
           secondchar = secondplr.Character or secondplr.CharacterAdded:Wait()
@@ -424,5 +421,5 @@ FingerButton.MouseButton1Click:Connect(function()
   end
 end)
 
-notify("Commands", "Cmds is: !speed [num] and !rejoin")
+notify("Commands", "Cmds is: !speed [num] and !receiveage")
 notify("Credits", "FE Finger made by GerdLua")
