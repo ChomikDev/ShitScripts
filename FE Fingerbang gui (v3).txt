@@ -1,7 +1,7 @@
 --[[
 fingerbang gui credits to gerdlua (works with permadeath in exploits which support replicatesignal or firesignal function)
 for script you need this accessory: https://www.roblox.com/catalog/6470135113/Fan-Hand-Sign-Why-Dont-We-WDW
-if you dont have this item you can get it here: 
+if you dont have this item you can get it here: https://www.roblox.com/games/6366043734/Why-Dont-We-Launch-Party
 ]]--
 local ReplicatedStorage = game:GetService("ReplicatedStorage")
 local Settings = settings()
