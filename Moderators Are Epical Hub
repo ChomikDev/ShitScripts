@@ -240,5 +240,5 @@ local HatScript = Window:NewTab("HatScript")
 local Section = HatScript:NewSection("Hat Scripts Stuff")
 
 Section:NewButton("Finger Gui", "", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ChomikDev/ShitScripts/refs/heads/main/FE%20Fingerbang%20gui%20(v3).txt"))()
+  loadstring(game:HttpGet("https://raw.githubusercontent.com/ChomikDev/ShitScripts/refs/heads/main/FE%20Fingerbang%20gui%20(v3).txt"))()
 end)
