@@ -109,10 +109,6 @@ hrp.CFrame = lastCFrame
 workspace.FallenPartsDestroyHeight = -500
 end)         
 
-Section:NewButton("Antibang", "", function()
-loadstring(game:HttpGet("https://raw.githubusercontent.com/ChomikDev/ShitScripts/refs/heads/main/FE%20Fingerbang%20gui%20(v3).txt"))()
-end)
-
 local Sounds = Window:NewTab("Sounds")
 
 local Section = Sounds:NewSection("Sounds Stuff")
@@ -237,4 +233,12 @@ end)
 
 Section:NewButton("Namless Admin", "", function()
   loadstring(game:HttpGet('https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source'))()
+end)
+
+local HatScript = Window:NewTab("HatScript")
+
+local Section = Sounds:NewSection("Hat Scripts Stuff")
+
+Section:NewButton("Finger Gui", "", function()
+loadstring(game:HttpGet("https://raw.githubusercontent.com/ChomikDev/ShitScripts/refs/heads/main/FE%20Fingerbang%20gui%20(v3).txt"))()
 end)
