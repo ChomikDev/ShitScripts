@@ -1,0 +1,24 @@
+-- credits to nil
+
+local lp = game.Players.LocalPlayer
+local bp = lp:WaitForChild'Backpack'
+local char = lp.Character or lp.CharacterAdded:Wait()
+local hum = char:FindFirstChildOfClass'Humanoid' or char:WaitForChild'Humanoid'
+
+local Anim = Instance.new("Animation")
+Anim.AnimationId = 'rbxassetid://74863286'
+local LoadAnim = lp.Character.Humanoid:LoadAnimation(Anim)
+local Ziga = Instance.new('Tool', bp)
+
+Ziga.Name = 'Siege Tool'
+Ziga.ToolTip = 'Hail!'
+Ziga.Parent = bp
+Ziga.RequiresHandle = false
+Ziga.Activated:Connect(function()
+		LoadAnim:Play()
+ LoadAnim:AdjustSpeed(1)
+end)
+
+lp.CharacterAdded:Connect(function()
+		Ziga.Parent = bp
+end)
