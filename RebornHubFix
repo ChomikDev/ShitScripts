@@ -1,0 +1,1831 @@
+local DefaultAnimations = true -- doesnt work in velocity because it doesnt allow u to run localscripts
+local DisableCharacterCollisions = true
+local InstantRespawn = true
+local ParentCharacterToRig = true
+local RigTransparency = 1
+local CFrameidentity = CFrame.identity
+local Inverse = CFrameidentity.Inverse
+local ToAxisAngle = CFrameidentity.ToAxisAngle
+local ToEulerAnglesXYZ = CFrameidentity.ToEulerAnglesXYZ
+local ToObjectSpace = CFrameidentity.ToObjectSpace
+local Connections = {}
+local Disconnect = nil
+local game = game
+local FindFirstChild = game.FindFirstChild
+local FindFirstChildOfClass = game.FindFirstChildOfClass
+local Players = FindFirstChildOfClass(game, "Players")
+local LocalPlayer = Players.LocalPlayer
+local Character = LocalPlayer.Character
+local CharacterAdded = LocalPlayer.CharacterAdded
+local Connect = CharacterAdded.Connect
+local Wait = CharacterAdded.Wait
+local Rig = Players:CreateHumanoidModelFromDescription(Players:GetHumanoidDescriptionFromUserId(LocalPlayer.UserId), Enum.HumanoidRigType.R6)
+local RigAnimate = Rig.Animate
+local RigHumanoid = Rig.Humanoid -- no need to do waitforchild here, its a safe index
+local RigRootPart = RigHumanoid.RootPart
+local RunService = FindFirstChildOfClass(game, "RunService")
+local Workspace = FindFirstChildOfClass(game, "Workspace")
+local GetDescendants = game.GetDescendants
+local IsA = game.IsA
+local WaitForChild = game.WaitForChild
+local BreakJoints = Instance.new("Model").BreakJoints
+local mathsin = math.sin
+local next = next
+local osclock = os.clock
+local replicatesignal = replicatesignal
+local RootPartCFrame = nil
+local Motor6Ds = {}
+local select = select
+local sethiddenproperty = sethiddenproperty
+local tableinsert = table.insert
+local Vector3 = Vector3
+local Vector3new = Vector3.new
+local Vector3zero = Vector3.zero
+  
+local function newrig()
+RigAnimate.Enabled = false	
+Rig.Name = "non"
+if Character then
+if replicatesignal then
+if InstantRespawn then
+replicatesignal(LocalPlayer.ConnectDiedSignalBackend)
+task.wait(Players.RespawnTime - 0.1)
+local RootPart = FindFirstChild(Character, "HumanoidRootPart")
+if RootPart then
+RootPartCFrame = RootPart.CFrame
+end
+replicatesignal(LocalPlayer.Kill)
+end
+else
+BreakJoints(Character)
+end
+end
+Character = Wait(CharacterAdded)
+local Animate = WaitForChild(Character, "Animate")
+Animate.Enabled = false
+local RootPart = WaitForChild(Character, "HumanoidRootPart")
+RigRootPart.CFrame = RootPartCFrame or RootPart.CFrame
+Disconnect = Connect(RigHumanoid.Died, function()
+for Index, Connection in Connections do
+Disconnect(Connection)
+end
+if ParentCharacterToRig then
+Character.Parent = Rig.Parent
+end
+BreakJoints(Character)
+Rig:Destroy()
+end).Disconnect
+for Index, Descendant in next, GetDescendants(Character) do
+if IsA(Descendant, "Motor6D") then
+Motor6Ds[Descendant] = {
+Part0 = Rig[Descendant.Part0.Name],
+Part1 = Rig[Descendant.Part1.Name]
+}
+end
+end
+for Index, Descendant in next, GetDescendants(Rig) do
+if IsA(Descendant, "BasePart") then
+Descendant.Transparency = RigTransparency
+end
+end
+Rig.Parent = Workspace
+if ParentCharacterToRig then
+Character.Parent = Rig
+end
+task.defer(function()
+local CurrentCamera = Workspace.CurrentCamera
+local CameraCFrame = CurrentCamera.CFrame
+LocalPlayer.Character = Rig
+CurrentCamera.CameraSubject = RigHumanoid
+Wait(RunService.PreRender)
+Workspace.CurrentCamera.CFrame = CameraCFrame
+end)
+tableinsert(Connections, Connect(RunService.PostSimulation, function()
+for Motor6D, Table in next, Motor6Ds do
+local Part0 = Table.Part0
+local Part1CFrame = Table.Part1.CFrame
+Motor6D.DesiredAngle = select(3, ToEulerAnglesXYZ(Part1CFrame, Part0.CFrame))
+local Delta = Inverse(Motor6D.C0) * ( Inverse(Part0.CFrame) *  Part1CFrame ) * Motor6D.C1
+local Axis, Angle = ToAxisAngle(Delta)
+sethiddenproperty(Motor6D, "ReplicateCurrentAngle6D", Axis * Angle)
+sethiddenproperty(Motor6D, "ReplicateCurrentOffset6D", Delta.Position)
+end
+RootPart.AssemblyAngularVelocity = Vector3zero
+RootPart.AssemblyLinearVelocity = Vector3zero
+RootPart.CFrame = RigRootPart.CFrame + Vector3new(0, mathsin(osclock() * 15) * 0.004, 0)
+end))
+tableinsert(Connections, Connect(RunService.PreSimulation, function()
+for Index, BasePart in next, GetDescendants(Rig) do
+if IsA(BasePart, "BasePart") then
+BasePart.CanCollide = false
+end
+end
+if DisableCharacterCollisions and not ParentCharacterToRig then
+for Index, BasePart in next, GetDescendants(Character) do
+if IsA(BasePart, "BasePart") then
+BasePart.CanCollide = false
+end
+end
+end
+end))
+end
+
+local Library = loadstring(game:HttpGet("https://raw.githubusercontent.com/NICKISBAD/Nick-s-Modded-KAVO-Lib/main/Nick'sModdedKavoLib.lua"))()
+
+local Window = Library.CreateLib("Reborn Hub — v.1", "Ocean")
+
+local HatReanims = Window:NewTab("Hats")
+        
+local Section = HatReanims:NewSection("Reanimations with hats")
+
+Section:NewToggle("Perm Death", "", function(state)
+end)
+
+Section:NewButton("Hat Spin", "", function()
+end)       
+
+Section:NewButton("Hat Drop", "", function()
+end)       
+
+Section:NewButton("Hat Fling", "", function()
+end)       
+
+local Reanims = Window:NewTab("No Hats")
+        
+local Section = Reanims:NewSection("Reanimations without hats")
+
+Section:NewButton("Among Us", "", function()
+newrig()
+local venttoggle = false
+local vented = false
+local mode2 = false
+local attack = false
+local modetoggle = false
+local dead = false
+local dtoggle = false
+local sittoggle = false
+local sit = false
+local sine = 0
+local mouse = LocalPlayer:GetMouse()
+local joints = {
+    ["RootJoint"] = "",
+    ["Neck"] = "",
+    ["Right Hip"] = "",
+    ["Left Hip"] = "",
+    ["Left Shoulder"] = "",
+    ["Right Shoulder"] = ""
+}
+for i, v in pairs(Rig:GetDescendants()) do
+    if v:IsA("Motor6D") and (joints[v.Name] == "") then
+        joints[v.Name] = v
+    end
+end
+for i, v in pairs(joints) do
+    if v and (v ~= "") then
+        v.C0 = CFrame.new(0, 0, 0)
+        v.C1 = CFrame.new(0, 0, 0)
+    end
+end
+
+local function replace(a)
+    local b, c = a.Part0, a.Part1
+    a.Part1, a.Part0 = b, c
+end
+
+replace(joints["Left Shoulder"])
+replace(joints["Right Shoulder"])
+replace(joints["Left Hip"])
+replace(joints["Right Hip"])
+
+joints.Neck.C0 = CFrame.new(0, 0.3, -0.5)
+    
+mouse.Button1Down:Connect(function()
+    if not (dead or mode2) then
+        attack = true
+        vented = false
+        RigHumanoid.WalkSpeed = 0
+        wait(0.5)
+        RigHumanoid.WalkSpeed = 16
+        attack = false
+    end
+end)
+
+mouse.KeyDown:Connect(function(key)
+    if not Rig then return end
+    key = key:lower()
+    
+    if key == "e" then
+        if not venttoggle then
+            modetoggle = false
+            mode2 = false
+            venttoggle = true
+            vented = true
+            RigHumanoid.WalkSpeed = 100
+        elseif venttoggle then
+            venttoggle = false
+            vented = false
+            RigHumanoid.WalkSpeed = 16
+        end
+    elseif key == "f" then
+        if not modetoggle then
+            venttoggle = false
+            vented = false
+            modetoggle = true
+            mode2 = true
+            sittoggle = false
+            sit = false
+            RigHumanoid.WalkSpeed = 60
+        elseif modetoggle then
+            modetoggle = false
+            mode2 = false
+            RigHumanoid.WalkSpeed = 16
+        end
+    elseif key == "q" then
+        if dtoggle == false then
+            venttoggle = false
+            vented = false
+            modetoggle = false
+            mode2 = false
+            dtoggle = true
+            dead = true
+            sittoggle = false
+            sit = false
+            RigHumanoid.WalkSpeed = 0
+        elseif dtoggle == true then
+            dtoggle = false
+            dead = false
+            RigHumanoid.WalkSpeed = 16
+        end
+    elseif key == "c" then
+        if sittoggle == false then
+            venttoggle = false
+            vented = false
+            modetoggle = false
+            mode2 = false
+            dtoggle = false
+            dead = false
+            sittoggle = true
+            sit = true
+            RigHumanoid.WalkSpeed = 0
+        elseif sittoggle == true then
+            sittoggle = false
+            sit = false
+            RigHumanoid.WalkSpeed = 16
+        end
+    end
+end)
+local pose = "idle"
+RunService.Stepped:Connect(function()
+    if attack then
+        pose = "attack"
+    elseif dead then
+        pose = "dead"
+    elseif sit then
+        pose = "sit"
+    elseif mode2 then
+        if RigRootPart.Velocity.Magnitude < 2 then
+            pose = "idle2"
+        elseif RigRootPart.Velocity.Magnitude > 20 then
+            pose = "walk2"
+        end
+    else
+        if RigRootPart.Velocity.y > 1 then
+            pose = "jump"
+        elseif RigRootPart.Velocity.y < -1 then
+            pose = "fall"
+        elseif RigRootPart.Velocity.Magnitude < 2 then
+            pose = "idle"
+        elseif RigRootPart.Velocity.Magnitude < 20 then
+            pose = "walk"
+        elseif RigRootPart.Velocity.Magnitude > 20 then
+            pose = "run"
+        end 
+    end
+    
+    sine = sine + 1
+    
+    if pose == "idle" then
+        joints["RootJoint"].C0 = joints["RootJoint"].C0:lerp(CFrame.new(0, 0 + 0.3 * math.sin(sine/12), 0) * CFrame.Angles(math.rad(0 + 10 * math.sin(sine/12)), 0, 0), 0.1)
+        joints["Right Hip"].C0 = joints["Right Hip"].C0:lerp(CFrame.new(-0.5, 2 + 0.3 * math.sin(sine/12), 0.3) * CFrame.Angles(math.rad(0 + 10 * math.sin(sine/12)), math.rad(20), math.rad(-3)), 0.1)
+        joints["Left Hip"].C0 = joints["Left Hip"].C0:lerp(CFrame.new(0.5, 2 + 0.3 * math.sin(sine/12), 0.3) * CFrame.Angles(math.rad(0 + 10 * math.sin(sine/12)), math.rad(-20), math.rad(3)), 0.1)
+    elseif pose == "walk" then
+        joints["RootJoint"].C0 = joints["RootJoint"].C0:lerp(CFrame.new(0, 0 + 0.3 * math.sin(sine/12), 0) * CFrame.Angles(math.rad(-10), 0, 0), 0.1)
+        joints["Right Hip"].C0 = joints["Right Hip"].C0:lerp(CFrame.new(-0.5, 2 + 0.3 * math.sin(sine/12), 0.3 + 0.3 * math.sin(sine/12)) * CFrame.Angles(math.rad(0 + 30 * math.sin(sine/12)), 0, 0), 0.1)
+        joints["Left Hip"].C0 = joints["Left Hip"].C0:lerp(CFrame.new(0.5, 2 + 0.3 * math.sin(sine/12), 0.3 + -0.3 * math.sin(sine/12)) * CFrame.Angles(math.rad(0 + -30 * math.sin(sine/12)), 0, 0), 0.1)
+    elseif pose == "jump" then
+        joints["RootJoint"].C0 = joints["RootJoint"].C0:lerp(CFrame.new(0, 0, 0) * CFrame.Angles(0, 0, 0), 0.1)
+        joints["Right Hip"].C0 = joints["Right Hip"].C0:lerp(CFrame.new(-0.5, 0.5, 0.5) * CFrame.Angles(math.rad(15), 0, 0), 0.1)
+        joints["Left Hip"].C0 = joints["Left Hip"].C0:lerp(CFrame.new(0.5, 1, 0.5) * CFrame.Angles(math.rad(10), 0, 0), 0.1)
+    elseif pose == "fall" then
+        joints["RootJoint"].C0 = joints["RootJoint"].C0:lerp(CFrame.new(0, 0, 0) * CFrame.Angles(0, 0, 0), 0.1)
+        joints["Right Hip"].C0 = joints["Right Hip"].C0:lerp(CFrame.new(-0.5, 0.5, 0.5) * CFrame.Angles(math.rad(15 + 10 * math.sin(sine/12)), 0, math.rad(-10)), 0.1)
+        joints["Left Hip"].C0 = joints["Left Hip"].C0:lerp(CFrame.new(0.5, 1, 0.5) * CFrame.Angles(math.rad(10 + 5 * math.sin(sine/12)), 0, math.rad(10)), 0.1)
+    elseif pose == "vent" then
+        joints["RootJoint"].C0 = joints["RootJoint"].C0:lerp(CFrame.new(0, -8 * math.sin(sine/12), 0) * CFrame.Angles(0, 0, 0), 0.1)
+        joints["Right Hip"].C0 = joints["Right Hip"].C0:lerp(CFrame.new(-0.5, 1.5, 1) * CFrame.Angles(math.rad(26.02), 0, 0), 0.1)
+        joints["Left Hip"].C0 = joints["Left Hip"].C0:lerp(CFrame.new(0.5, 2, 0) * CFrame.Angles(0, 0, 0), 0.1)
+    elseif pose == "idle2" then
+        joints["RootJoint"].C0 = joints["RootJoint"].C0:lerp(CFrame.new(0, 3 + 0.3 * math.sin(sine/20), 0) * CFrame.Angles(math.rad(0 + 20 * math.sin(sine/20)), 0, 0), 0.1)
+        joints["Right Hip"].C0 = joints["Right Hip"].C0:lerp(CFrame.new(-0.5, 1, 1) * CFrame.Angles(math.rad(20 + -20 * math.sin(sine/20)), 0, 0), 0.1)
+        joints["Left Hip"].C0 = joints["Left Hip"].C0:lerp(CFrame.new(0.5, 2, 0.5 + -0.5 * math.sin(sine/20)) * CFrame.Angles(math.rad(10 + -20 * math.sin(sine/20)), 0, 0), 0.1)
+    elseif pose == "walk2" then
+        joints["RootJoint"].C0 = joints["RootJoint"].C0:lerp(CFrame.new(0, 3 + 0.3 * math.sin(sine/20), 0) * CFrame.Angles(math.rad(-60 + 10 * math.sin(sine/20)), 0, 0), 0.1)
+        joints["Right Hip"].C0 = joints["Right Hip"].C0:lerp(CFrame.new(-0.4, 2, 0.3) * CFrame.Angles(math.rad(0 + -10 * math.sin(sine/20)), 0, math.rad(-5)), 0.1)
+        joints["Left Hip"].C0 = joints["Left Hip"].C0:lerp(CFrame.new(0.5, 1, 0.5) * CFrame.Angles(math.rad(0 + -20 * math.sin(sine/20)), 0, math.rad(5)), 0.1)
+    elseif pose == "attack" then
+        joints["RootJoint"].C0 = joints["RootJoint"].C0:lerp(CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(30), 0, 0), 0.1)
+        joints["Right Hip"].C0 = joints["Right Hip"].C0:lerp(CFrame.new(-0.4, 2, 0.5) * CFrame.Angles(math.rad(30), 0, math.rad(-4)), 0.1)
+        joints["Left Hip"].C0 = joints["Left Hip"].C0:lerp(CFrame.new(0.4, 2, 0.5) * CFrame.Angles(math.rad(30), 0, math.rad(4)), 0.1)
+    elseif pose == "sit" then
+        joints["RootJoint"].C0 = joints["RootJoint"].C0:lerp(CFrame.new(0, -1.8, 0) * CFrame.Angles(math.rad(10), 0, 0), 0.1)
+        joints["Right Hip"].C0 = joints["Right Hip"].C0:lerp(CFrame.new(-0.4, 1, -1) * CFrame.Angles(math.rad(-90), math.rad(10), math.rad(-4)), 0.1)
+        joints["Left Hip"].C0 = joints["Left Hip"].C0:lerp(CFrame.new(0.4, 1, -1) * CFrame.Angles(math.rad(-90), math.rad(-10), 0), 0.1)
+    elseif pose == "dead" then
+        joints["RootJoint"].C0 = joints["RootJoint"].C0:lerp(CFrame.new(0, -2.5, -1) * CFrame.Angles(math.rad(-90), 0, 0), 0.1)
+        joints["Right Hip"].C0 = joints["Right Hip"].C0:lerp(CFrame.new(-0.4, 3, 0) * CFrame.Angles(0, 0, math.rad(-4)), 0.1)
+        joints["Left Hip"].C0 = joints["Left Hip"].C0:lerp(CFrame.new(0.4, 3, 0) * CFrame.Angles(0, 0, math.rad(4)), 0.1)
+    end
+  joints["Right Shoulder"].C0 = joints["Right Shoulder"].C0:lerp(CFrame.new(-0.4, 0, -0.8) * CFrame.Angles(0, 0, 0), 0.1)
+  joints["Left Shoulder"].C0 = joints["Left Shoulder"].C0:lerp(CFrame.new(0.4, 0, -0.8) * CFrame.Angles(0, 0, 0), 0.1)
+end)
+end)       
+
+Section:NewButton("Da Feets", "", function()
+  newrig()
+  local Char = Rig
+local Hum = Char:FindFirstChildOfClass'Humanoid'
+local Head = Char.Head
+local RArm = Char["Right Arm"]
+local LArm = Char["Left Arm"]
+local RLeg = Char["Right Leg"]
+local LLeg = Char["Left Leg"]	
+local Torso= Char.Torso
+local Root = Char.HumanoidRootPart
+
+local NeutralAnims = true
+local legAnims = true
+local WalkSpeed = 60
+
+local RJ = Instance.new("Motor6D", Root)
+RJ.Part0 = Root
+RJ.Part1 = Torso
+RJ.C0 = CFrame.new()
+RJ.C1 = CFrame.new()
+
+local NK = Instance.new("Motor6D", Torso)
+NK.Part0 = Torso
+NK.Part1 = Head
+NK.C0 = CFrame.new(0,1.5,0)
+NK.C1 = CFrame.new()
+
+local LS = Instance.new("Motor6D", Torso)
+LS.Part0 = Torso
+LS.Part1 = LArm
+LS.C0 = CFrame.new(-.5,-2,0)
+LS.C1 = CFrame.new(0,.5,0)
+
+local RS = Instance.new("Motor6D", Torso)
+RS.Part0 = Torso
+RS.Part1 = RArm
+RS.C0 = CFrame.new(.5,-2,0)
+RS.C1 = CFrame.new(0,.5,0)
+
+local LH = Instance.new("Motor6D", Torso)
+LH.Part0 = Torso
+LH.Part1 = LLeg
+LH.C0 = CFrame.new(0,0,0)
+LH.C1 = CFrame.new(0,0,0)
+
+local RH = Instance.new("Motor6D", Torso)
+RH.Part0 = Torso
+RH.Part1 = RLeg
+RH.C0 = CFrame.new(0,0,0)
+RH.C1 = CFrame.new(0,0,0)
+
+local Sine = 0
+local Change = 1
+
+local function Animate(joint,c0,alpha,style,dir)
+    joint.C0 = joint.C0:lerp(c0,alpha)
+end
+
+local M = {
+    R=math.rad;
+    C=math.cos;
+    S=math.sin;
+}
+
+while true do
+    wait()
+    Sine = Sine + Change
+    
+    local Hit = workspace:FindPartOnRay(Ray.new(Root.Position, Vector3.new(0, -4, 0)), Char)
+    local Walking = game.Players.LocalPlayer.Character.Humanoid.MoveDirection.magnitude > 0
+    local State = (not Hit and Root.Velocity.Y < -1 and 'Fall' or not Hit and Root.Velocity.Y > 1 and 'Jump' or Walking and "Walk" or "Idle")
+    
+    if(NeutralAnims)then	
+        if(State == 'Idle')then
+            local Alpha = .2
+            Animate(NK,CFrame.new(0,1.48,-0.1)*CFrame.Angles(M.R(-10 + 10 * M.S(Sine/15)),M.R(0),M.R(0)),Alpha,'Lerp')
+            Animate(LS,CFrame.new(-0.72,-0.83 - 0.2 * M.C(Sine/15),-0.65)*CFrame.Angles(M.R(45.4 - 10 * M.C(Sine/15)),M.R(37.2),M.R(-16)),Alpha,'Lerp')
+            Animate(LH,CFrame.new(-1.01,-2.8 - 0.2 * M.C(Sine/15),-1.74)*CFrame.Angles(M.R(20 + 10 * M.C(Sine/15)),M.R(40),M.R(0)),Alpha,'Lerp')
+            Animate(RJ,CFrame.new(0,1.24 + 0.2 * M.C(Sine/15),0.07)*CFrame.Angles(M.R(-20),M.R(0),M.R(0)),Alpha,'Lerp')
+            Animate(RH,CFrame.new(0.89,-2.77 - 0.2 * M.C(Sine/15),-1.8)*CFrame.Angles(M.R(20 + 10 * M.C(Sine/15)),M.R(-30),M.R(0)),Alpha,'Lerp')
+            Animate(RS,CFrame.new(0.68,-0.82 - 0.2 * M.C(Sine/15),-0.68)*CFrame.Angles(M.R(42.8 - 10 * M.C(Sine/15)),M.R(-28),M.R(11.2)),Alpha,'Lerp')
+
+        elseif(State == 'Walk')then
+            local Alpha = .2
+            Animate(NK,CFrame.new(0,1.5,0)*CFrame.Angles(M.R(0 + 10 * M.C(Sine/2)),M.R(0),M.R(0)),Alpha,'Lerp')
+            Animate(LS,CFrame.Angles(M.R(-(Sine*10)),M.R(0),M.R(0))*CFrame.new(-0.5,-1.5,0)*CFrame.Angles(M.R(0),M.R(0),M.R(0)),Alpha,'Lerp')
+            Animate(LH,CFrame.Angles(M.R(-(Sine*10)),M.R(0),M.R(0))*CFrame.new(-0.5,-3.99,0.01)*CFrame.Angles(M.R(0),M.R(0),M.R(0)),Alpha,'Lerp')
+            Animate(RJ,CFrame.new(0 - 1 * M.S(Sine/4),0.70 + 5 * M.C(Sine/2),0)*CFrame.Angles(M.R(-30 + 10 * M.S(Sine/4)),M.R(0),M.R(0)),Alpha,'Lerp')
+            Animate(RH,CFrame.Angles(M.R(-(Sine*10) + 180),M.R(0),M.R(0))*CFrame.new(0.5,-3.99,0.02)*CFrame.Angles(M.R(0),M.R(0),M.R(0)),Alpha,'Lerp')
+            Animate(RS,CFrame.Angles(M.R(-(Sine*10) + 180),M.R(0),M.R(0))*CFrame.new(0.5,-1.5,0)*CFrame.Angles(M.R(0),M.R(0),M.R(0)),Alpha,'Lerp')
+            Hum.WalkSpeed = WalkSpeed
+        elseif(State == 'Jump')then
+            Animate(NK,CFrame.new(0,1.45,0.19)*CFrame.Angles(M.R(15),M.R(0),M.R(0)),.2,'Lerp')
+            Animate(LS,CFrame.new(-0.5,-1.06,-0.45)*CFrame.Angles(M.R(-20),M.R(0),M.R(0)),.2,'Lerp')
+            Animate(LH,CFrame.new(-0.5,-3.35,0.61)*CFrame.Angles(M.R(-35),M.R(0),M.R(0)),.2,'Lerp')
+            Animate(RJ,CFrame.new(0,1.96,0.39)*CFrame.Angles(M.R(15),M.R(0),M.R(0)),.2,'Lerp')
+            Animate(RH,CFrame.new(0.5,-3.34,0.61)*CFrame.Angles(M.R(-35),M.R(0),M.R(0)),.2,'Lerp')
+            Animate(RS,CFrame.new(0.5,-1.06,-0.45)*CFrame.Angles(M.R(-20),M.R(0),M.R(0)),.2,'Lerp')
+        elseif(State == 'Fall')then
+            Animate(NK,CFrame.new(0,1.54,-0.22)*CFrame.Angles(M.R(-15),M.R(0),M.R(0)),.2,'Lerp')
+            Animate(LS,CFrame.new(-0.5,-0.76,-0.86)*CFrame.Angles(M.R(45),M.R(0),M.R(0)),.2,'Lerp')
+            Animate(LH,CFrame.new(-0.5,-2.58,-2.34)*CFrame.Angles(M.R(30),M.R(0),M.R(0)),.2,'Lerp')
+            Animate(RJ,CFrame.new(0,1.91,-0.51)*CFrame.Angles(M.R(-20),M.R(0),M.R(0)),.2,'Lerp')
+            Animate(RH,CFrame.new(0.5,-2.58,-2.33)*CFrame.Angles(M.R(30),M.R(0),M.R(0)),.2,'Lerp')
+            Animate(RS,CFrame.new(0.5,-0.76,-0.86)*CFrame.Angles(M.R(45),M.R(0),M.R(0)),.2,'Lerp')
+        end
+    end
+end
+end)       
+
+Section:NewButton("Creepy Crawler", "", function()
+  newrig()
+  local RigCharacter = game:GetService("Workspace"):WaitForChild("non")
+if not RigCharacter then return end
+
+local humanoidRootPart = RigCharacter:WaitForChild("HumanoidRootPart")
+local torso = RigCharacter:WaitForChild("Torso")
+local hum = RigCharacter:WaitForChild("Humanoid")
+local neck = torso:WaitForChild("Neck")
+local rootJoint = humanoidRootPart:WaitForChild("RootJoint")
+local leftShoulder = torso:WaitForChild("Left Shoulder")
+local rightShoulder = torso:WaitForChild("Right Shoulder")
+local leftHip = torso:WaitForChild("Left Hip")
+local rightHip = torso:WaitForChild("Right Hip")
+local animate = RigCharacter:FindFirstChild("Animate")
+if animate then
+	animate.Disabled = true
+end
+for i, v in pairs(hum:GetPlayingAnimationTracks()) do
+	v:Stop()
+end
+hum.WalkSpeed = 10
+local RunSrv = game:GetService("RunService")
+local sine = 0
+local cf, v3, euler, sin, abs = CFrame.new, Vector3.new, CFrame.fromEulerAnglesXYZ, math.sin, math.abs
+RunSrv.Heartbeat:Connect(function()
+    if not (RigCharacter and RigCharacter.Parent) then return end -- Прекращаем, если персонаж исчез
+    
+    sine = sine + 1
+    local vel = humanoidRootPart.Velocity
+    local lerpFactor = 0.2 -- Коэффициент плавности
+
+    if (vel * v3(1, 0, 1)).Magnitude > 2 then -- Анимация ходьбы
+		neck.C0 = neck.C0:Lerp(cf(0, 0, 0) * euler(0.17453, 0.0349 * sin((sine + 2.5) * 0.2), 0) * cf(0, 0.5, 0) * euler(0,0,math.pi), lerpFactor)
+		rootJoint.C0 = rootJoint.C0:Lerp(cf(0, 0, 0) * euler(0.08726 * sin((sine + 7.5) * 0.2), 0, -0.08726 * sin(sine * 0.2)) * cf(0,-1.5,0) * euler(math.pi-0.0872,0,math.pi), lerpFactor) 
+		leftShoulder.C0 = leftShoulder.C0:Lerp(cf(-1, 0.5, 0) * euler(0.17453 * sin((sine + 15) * 0.2), 0, -0.08726 * sin(sine * 0.2)) * cf(0, 1 + 0.5 * sin((sine + 10) * 0.2), 0.3 + 0.2 * sin((sine - 10) * 0.2)) * euler(math.pi/2+0.0872,0,0), lerpFactor) 
+		rightShoulder.C0 = rightShoulder.C0:Lerp(cf(1, 0.5, 0) * euler(0.17453 * sin(sine * 0.2), 0, 0.08726 * sin(sine * 0.2)) * cf(0, 1 + 0.5 * sin((sine - 7.5) * 0.2), 0.3 + 0.2 * sin((sine + 5) * 0.2)) * euler(math.pi/2+0.0872,0,0), lerpFactor) 
+		leftHip.C0 = leftHip.C0:Lerp(cf(-1, -1, 0) * euler(0.17453 * sin(sine * 0.2), 0, 0.08726 * sin(sine * 0.2)) * cf(0, -0.5 + 0.5 * sin((sine - 7.5) * 0.2), 0.5 + 0.2 * sin((sine + 5) * 0.2)) * euler(math.pi/2+0.0872,0,0), lerpFactor) 
+		rightHip.C0 = rightHip.C0:Lerp(cf(1, -1, 0) * euler(-0.17453 * sin(sine * 0.2), 0, 0.08726 * sin(sine * 0.2)) * cf(0, -0.5 + 0.5 * sin((sine + 10) * 0.2), 0.5 + 0.2 * sin((sine - 7.5) * 0.2)) * euler(math.pi/2+0.0872,0,0), lerpFactor) 
+    elseif abs(vel.Y) > 2 then -- Анимация падения
+		-- ИЗМЕНЕНО: Голова поднята ВВЕРХ (y=0.5), смещение вперёд убрано (z=0)
+		neck.C0 = neck.C0:Lerp(cf(0, 0, 0) * euler(0, 0, 0) * cf(0, 0.5, 0) * euler(0,0,math.pi), lerpFactor)
+		rootJoint.C0 = rootJoint.C0:Lerp(cf(0, -1.4, 0) * euler(math.pi, 0, math.pi), lerpFactor) 
+		leftShoulder.C0 = leftShoulder.C0:Lerp(cf(-0.5, 1.5, 0.3) * euler(1.7453, 0, -0.17453), lerpFactor) 
+		rightShoulder.C0 = rightShoulder.C0:Lerp(cf(0.5, 1.5, 0.3) * euler(1.7453, 0, 0.17453), lerpFactor) 
+		leftHip.C0 = leftHip.C0:Lerp(cf(-0.5, -1.5, 0.8) * euler(1.3962, 0, -0.17453), lerpFactor) 
+		rightHip.C0 = rightHip.C0:Lerp(cf(0.5, -1.5, 0.8) * euler(1.3962, 0, 0.17453), lerpFactor) 
+    else -- Анимация бездействия (idle)
+        -- Анимация торса для "дыхания"
+		-- ИЗМЕНЕНО: Голова поднята ВВЕРХ (y=0.5), смещение вперёд убрано (z=0)
+		neck.C0 = neck.C0:Lerp(cf(0, 0, 0) * euler(0.08726 * sin((sine + 20) * 0.05), 0, 0.34906 * sin((sine - 30) * 0.025)) * cf(0, 0.5, 0) * euler(0,0,math.pi), lerpFactor)
+		rootJoint.C0 = rootJoint.C0:Lerp(cf(0, -1.5 + 0.1 * sin(sine * 0.05), 0) * euler(math.pi, 0, math.pi + 0.05235 * sin(sine * 0.025)), lerpFactor) 
+        
+        -- Поза рук и ног в состоянии покоя
+		leftShoulder.C0 = leftShoulder.C0:Lerp(cf(-1, 1.5, -0.1 * sin(sine * 0.05)) * euler(1.5707963267948966, 0, 0.08726646259971647 * sin(sine * 0.025)), lerpFactor) 
+		rightShoulder.C0 = rightShoulder.C0:Lerp(cf(1, 1.5, -0.1 * sin(sine * 0.05)) * euler(1.5707963267948966, 0, -0.08726646259971647 * sin(sine * 0.025)), lerpFactor) 
+		leftHip.C0 = leftHip.C0:Lerp(cf(-1, -1.5, 0.5 + -0.1 * sin((sine + 10) * 0.05)) * euler(1.5707963267948966, 0, 0.08726646259971647 * sin(sine * 0.025)), lerpFactor) 
+		rightHip.C0 = rightHip.C0:Lerp(cf(1, -1.5, 0.5 + -0.1 * sin((sine + 10) * 0.05)) * euler(1.5707963267948966, 0, -0.08726646259971647 * sin(sine * 0.025)), lerpFactor) 
+    end
+end)
+end)    
+
+Section:NewButton("Xester", "", function()
+    newrig()
+    --[[
+Скрипт "XESTER THE CARD MASTER"
+Очищен от визуальных и звуковых эффектов Gemini.
+Все основные анимации и функции клавиш сохранены.
+--]]
+
+Player=game:GetService("Players").LocalPlayer
+Character=Rig
+Character.Humanoid.Name = "noneofurbusiness"
+hum = Character.noneofurbusiness
+LeftArm=Character["Left Arm"]
+LeftLeg=Character["Left Leg"]
+RightArm=Character["Right Arm"]
+RightLeg=Character["Right Leg"]
+Root=Character["HumanoidRootPart"]
+Head=Character["Head"]
+Torso=Character["Torso"]
+Neck=Torso["Neck"]
+walking = false
+jumping = false
+attacking = false
+laughing = false
+running = false
+downpress = false
+change = 0
+ws = 10
+appi = false
+tauntdebounce = false
+position = nil
+levitate = false
+notallowedtransform = false
+settime = 0
+sine = 0
+t = 0
+
+mouse = Player:GetMouse()
+RunSrv = game:GetService("RunService")
+RenderStepped = game:GetService("RunService").RenderStepped
+removeuseless = game:GetService("Debris")
+
+local HEADLERP = Instance.new("ManualWeld")
+HEADLERP.Parent = Head
+HEADLERP.Part0 = Head
+HEADLERP.Part1 = Head
+HEADLERP.C0 = CFrame.new(0, -1.5, -0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0))
+
+local TORSOLERP = Instance.new("ManualWeld")
+TORSOLERP.Parent = Root
+TORSOLERP.Part0 = Torso
+TORSOLERP.C0 = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0))
+
+local ROOTLERP = Instance.new("ManualWeld")
+ROOTLERP.Parent = Root
+ROOTLERP.Part0 = Root
+ROOTLERP.Part1 = Torso
+ROOTLERP.C0 = CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0))
+
+local RIGHTARMLERP = Instance.new("ManualWeld")
+RIGHTARMLERP.Parent = RightArm
+RIGHTARMLERP.Part0 = RightArm
+RIGHTARMLERP.Part1 = Torso
+RIGHTARMLERP.C0 = CFrame.new(-1.5, 0, -0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0))
+
+local LEFTARMLERP = Instance.new("ManualWeld")
+LEFTARMLERP.Parent = LeftArm
+LEFTARMLERP.Part0 = LeftArm
+LEFTARMLERP.Part1 = Torso
+LEFTARMLERP.C0 = CFrame.new(1.5, 0, -0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0))
+
+local RIGHTLEGLERP = Instance.new("ManualWeld")
+RIGHTLEGLERP.Parent = RightLeg
+RIGHTLEGLERP.Part0 = RightLeg
+RIGHTLEGLERP.Part1 = Torso
+RIGHTLEGLERP.C0 = CFrame.new(-0.5, 2, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0))
+
+local LEFTLEGLERP = Instance.new("ManualWeld")
+LEFTLEGLERP.Parent = LeftLeg
+LEFTLEGLERP.Part0 = LeftLeg
+LEFTLEGLERP.Part1 = Torso
+LEFTLEGLERP.C0 = CFrame.new(0.5, 2, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0))
+
+
+coroutine.wrap(function()
+    while wait() do
+        hum.WalkSpeed = ws
+    end
+end)()
+
+function damagealll(Radius,Position)		
+	local Returning = {}		
+	for _,v in pairs(workspace:GetChildren()) do		
+		if v~=Character and v:FindFirstChildOfClass('Humanoid') and (v:FindFirstChild('Torso') or v:FindFirstChild('UpperTorso')) then
+            local targetTorso = v:FindFirstChild('Torso') or v:FindFirstChild('UpperTorso')
+			local Mag = (targetTorso.Position - Position).magnitude		
+			if Mag < Radius then		
+				table.insert(Returning,v)		
+			end
+		end		
+	end		
+	return Returning		
+end
+
+function swait(num)
+	if num == 0 or num == nil then
+		game:service("RunService").Stepped:wait(0)
+	else
+		for i = 0, num do
+			game:service("RunService").Stepped:wait(0)
+		end
+	end
+end
+
+for _,n in pairs(Character:GetChildren()) do
+    if n:IsA("Accessory") then n:Remove() end
+end
+for _,x in pairs(Character:GetChildren()) do
+    if x:IsA("Decal") then x:Remove() end
+end
+
+local shirt = Instance.new("Shirt", Character)
+shirt.Name = "Shirt"
+local pants = Instance.new("Pants", Character)
+pants.Name = "Pants"
+
+-- Привязки клавиш
+mouse.KeyDown:connect(function(Press)
+Press=Press:lower()
+if Press=='r' then -- Cardnado
+    if levitate then return end
+    if debounce then return end
+    debounce = true
+    attacking = true
+    appi = true
+    ws = 0
+    
+    -- Анимация
+    for i = 1, 20 do
+        ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, -.2 + -.1 * math.sin(sine/12), 0) * CFrame.Angles(math.rad(0),math.rad(25),math.rad(0)),.3)
+        RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.3, 2 - .1 * math.sin(sine/12), 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(-10)), 0.3)
+        LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.3, 2.0 - .1 * math.sin(sine/12), 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(10)), 0.3)
+        RIGHTARMLERP.C1 = RIGHTARMLERP.C1:lerp(CFrame.new(0,1.5,-.1),.5)
+        RIGHTARMLERP.C0 = RIGHTARMLERP.C0:lerp(CFrame.new(-1.5,0,0) * CFrame.Angles(math.rad(180),math.rad(10),math.rad(10)),.3)
+        swait()
+    end
+
+    -- Функциональность (урон и отбрасывание)
+    for i = 1, 35 do
+        local Hit = damagealll(22,Torso.Position)	
+        for _,v in pairs(Hit) do		
+            local targetHum = v:FindFirstChildOfClass("Humanoid")
+            if targetHum then targetHum:TakeDamage(5) end
+            local vel = Instance.new("BodyVelocity",v:FindFirstChild("Torso") or v:FindFirstChild("UpperTorso")) 
+            vel.maxForce = Vector3.new(math.huge,math.huge,math.huge)
+            local torso = v:FindFirstChild("Torso") or v:FindFirstChild("UpperTorso")
+            vel.velocity = CFrame.new(Torso.Position,torso.Position).lookVector*20
+            removeuseless:AddItem(vel,.1)
+        end
+        wait(.1)
+    end
+    
+    wait(1)
+    ws = 10
+    attacking = false
+    debounce = false
+    appi = false
+end
+end)
+
+mouse.KeyDown:connect(function(Press)
+    Press=Press:lower()
+    if Press=='e' then -- Full House
+        if levitate then return end
+        if debounce then return end
+        attacking = true
+        debounce = true
+        ws = 0
+        
+        -- Анимация
+        for i = 1, 40 do
+            LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(0,0,0),.5)
+            LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1.2,1.5,0) * CFrame.Angles(math.rad(180 - 7 * math.sin(sine/6)),math.rad(7 * math.sin(sine/6)),math.rad(7*math.sin(sine/6))), 0.5)
+            swait()
+        end
+        
+        ws = 10
+        local notallowed = true
+        local clickdebounce = false
+        local g1 = Instance.new("BodyGyro", Root)
+        g1.D = 175
+        g1.P = 20000
+        g1.MaxTorque = Vector3.new(0,9000,0)
+        
+        local clickConnection = mouse.Button1Down:connect(function()
+            if clickdebounce then return end
+            wait(.2)
+            clickdebounce = true
+            notallowed = false
+        end)
+        
+        while notallowed do
+            ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, -.2, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)), 0.3)
+            g1.CFrame = g1.CFrame:lerp(CFrame.new(Root.Position,mouse.Hit.p),.2)
+            LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1, 1.35, 0.4) * CFrame.Angles(math.rad(-90 - 2 * math.sin(sine/12)), math.rad(3), math.rad(4)), 0.3)
+            swait()
+        end
+        clickConnection:Disconnect()
+
+        ws = 0
+        -- Анимация броска
+        for i = 1, 15 do
+            RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.3, 2, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(-10)), 0.3)
+            LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.3, 2.0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(10)), 0.3)
+            ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, -.2, 0) * CFrame.Angles(math.rad(0), math.rad(50), math.rad(0)), 0.3)
+            LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1, 1.35, 0.4) * CFrame.Angles(math.rad(-50 - 2 * math.sin(sine/12)), math.rad(12), math.rad(9)), 0.3)
+            LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(-.65, .6, 1) * CFrame.Angles(0,0,0),.3)
+            swait()
+        end
+        
+        -- Функциональность (урон по цели)
+        if mouse.Target and mouse.Target.Parent:FindFirstChildOfClass("Humanoid") then
+             local targetHum = mouse.Target.Parent:FindFirstChildOfClass("Humanoid")
+             targetHum:TakeDamage(25)
+        end
+        
+        -- Анимация завершения
+        for i = 1, 20 do
+            RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.3, 2, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(-10)), 0.3)
+            LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.3, 2.0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(10)), 0.3)
+            ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, -.2, 0) * CFrame.Angles(math.rad(0), math.rad(-25), math.rad(0)), 0.3)
+            LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.3)
+            LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1, 1.35, 0.4) * CFrame.Angles(math.rad(-90 - 2 * math.sin(sine/12)), math.rad(-15), math.rad(4)), 0.3)
+            swait()
+        end
+        
+        g1:Remove()
+        attacking = false
+        debounce = false
+        ws = 10
+    end
+end)
+
+mouse.KeyDown:connect(function(Press)
+    Press=Press:lower()
+    if Press=='t' then
+        if levitate then -- Режим 2: Смех
+            if tauntdebounce then return end
+            tauntdebounce = true
+            laughing = true
+            wait(2) -- Просто ждем, анимации смеха здесь нет
+            laughing = false
+            tauntdebounce = false
+        else -- Режим 1: Телепорт
+            if mouse.Target ~= nil then
+                if debounce then return end
+                attacking = true
+                local g1 = Instance.new("BodyGyro", Root)
+                g1.D = 175
+                g1.P = 20000
+                g1.MaxTorque = Vector3.new(0,9000,0)
+                g1.CFrame = CFrame.new(Root.Position,mouse.Hit.p)
+                removeuseless:AddItem(g1,.05)
+                Root.CFrame = CFrame.new(mouse.Hit.p) * CFrame.new(0,3.3,0)
+                wait(.1)
+                attacking = false
+                debounce = false
+            end
+        end
+    end
+end)
+
+mouse.KeyDown:connect(function(Press)
+    Press=Press:lower()
+    if Press=='q' then -- The Disappearing Act
+        if levitate then return end
+        if mouse.Target ~= nil and mouse.Target.Parent ~= Character and mouse.Target.Parent:FindFirstChildOfClass("Humanoid") ~= nil and mouse.Target.Parent:FindFirstChildOfClass("Humanoid").Health ~= 0 then
+            if debounce then return end
+            debounce = true
+            attacking = true
+            ws = 0
+            
+            local enemyhum = mouse.Target.Parent:FindFirstChildOfClass("Humanoid")
+            local ETorso = enemyhum.Parent:FindFirstChild("Torso") or enemyhum.Parent:FindFirstChild("LowerTorso")
+            local EHead = enemyhum.Parent:FindFirstChild("Head")
+            
+            local g1 = Instance.new("BodyGyro", Root)
+            g1.D = 175
+            g1.P = 20000
+            g1.MaxTorque = Vector3.new(0,9000,0)
+            
+            local cardPos = CFrame.new(ETorso.Position) * CFrame.new(0,-3,0)
+            
+            -- Анимация
+            for i = 1, 20 do
+                g1.CFrame = g1.CFrame:lerp(CFrame.new(Root.Position,ETorso.Position),.2)
+                swait()
+            end
+            
+            ETorso.Anchored = true
+            EHead.Anchored = true
+            
+            for i = 1, 25 do
+                swait()
+                g1.CFrame = g1.CFrame:lerp(CFrame.new(Root.Position,ETorso.Position),.2)
+                ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0,-.2,0) * CFrame.Angles(0,0,0),.3)
+                LEFTARMLERP.C1 = CFrame.new(0,0,0) * CFrame.Angles(0,0,0)
+                LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1, 1.35, 0.4) * CFrame.Angles(math.rad(-90 - 2 * math.sin(sine/12)), math.rad(3), math.rad(4)), 0.3)
+            end
+            
+            for i = 1, 35 do
+                swait()
+                EHead.CFrame = EHead.CFrame * CFrame.new(0,-.20,0)
+                ETorso.CFrame = ETorso.CFrame * CFrame.new(0,-.25,0)
+            end
+            
+            -- Функциональность (убийство)
+            enemyhum.Parent:BreakJoints()
+            
+            ws = 10
+            attacking = false
+            removeuseless:AddItem(g1,0.001)
+            debounce = false
+        end
+    end
+end)
+
+mouse.KeyDown:connect(function(Press)
+Press=Press:lower()
+if Press=='f' then -- Transform
+    if debounce then return end
+    if notallowedtransform then return end
+    debounce = true
+    if levitate then
+        levitate = false
+        ws = 10
+        notallowedtransform = true
+        attacking = true
+        shirt.ShirtTemplate = "rbxassetid://676428254"
+        pants.PantsTemplate = "rbxassetid://676428351"
+        hum.HipHeight = 0
+        ws = 10
+        debounce = false
+        attacking = false
+        coroutine.wrap(function()
+            wait(3)
+            notallowedtransform = false
+        end)()
+    else
+        ws = 50
+        notallowedtransform = true
+        levitate = true
+        shirt.ShirtTemplate = "rbxassetid://238537827"
+        pants.PantsTemplate = "rbxassetid://486031443"
+        
+        coroutine.wrap(function()
+            while levitate do
+                hum.HipHeight = 3 - .5 * math.sin(sine/9)
+                swait()
+            end
+        end)()
+        attacking = false
+        debounce = false
+        coroutine.wrap(function()
+            wait(3)
+            notallowedtransform = false
+        end)()
+    end
+end
+end)
+
+-- Остальные способности (Y, U, P, G, H, J, K) были слишком сильно завязаны на визуальных эффектах
+-- и их функциональность без них теряется. Для сохранения работоспособности скрипта
+-- они были упрощены до анимаций или удалены.
+
+--[[ Проверка состояний для анимаций ]]--
+checks1 = coroutine.wrap(function()
+while true do
+if Root.Velocity.y > 1 and levitate == false then
+position = "Jump"
+elseif Root.Velocity.y < -1 and levitate == false then
+position = "Falling"
+elseif Root.Velocity.Magnitude < 2 and running == false and not levitate then
+position = "Idle"
+elseif Root.Velocity.Magnitude < 2 and running == false and levitate then
+position = "Idle2"
+elseif Root.Velocity.Magnitude < 20 and running == false and levitate == false then
+position = "Walking"
+elseif Root.Velocity.Magnitude > 2 and levitate == true then
+position = "Walking2"
+elseif Root.Velocity.Magnitude > 20 and levitate == false then
+position = "Running"
+else
+end
+wait()
+end
+end)
+checks1()
+
+
+--[[ Главный цикл анимаций ]]--
+local anims = coroutine.wrap(function()
+while true do
+settime = 0.05
+sine = sine + change
+if position == "Jump" and attacking == false then
+change = 1
+LEFTLEGLERP.C1 = LEFTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.1)
+RIGHTLEGLERP.C1 = RIGHTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(math.rad(0),0,0),.1)
+LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.4)
+RIGHTARMLERP.C1 = RIGHTARMLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.4)
+ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(0)), 0.4)
+LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1.4,.1,-.2) * CFrame.Angles(math.rad(20),math.rad(-3),math.rad(-4)), 0.4)
+RIGHTARMLERP.C0 = RIGHTARMLERP.C0:lerp(CFrame.new(-1.4,.1,-.2) * CFrame.Angles(math.rad(20),math.rad(3),math.rad(4)), 0.4)
+RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.5, 2, 0) * CFrame.Angles(math.rad(10), math.rad(0), math.rad(0)), 0.4)
+LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.5, 1.0, .9) * CFrame.Angles(math.rad(20), math.rad(0), math.rad(0)), 0.4)
+elseif position == "Jump2" and attacking == false and levitate then
+change = 1
+ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(-20 - 1 * math.sin(sine/9)), math.rad(0 + 0 * math.cos(sine/8)), math.rad(0) + Root.RotVelocity.Y / 30, math.cos(10 * math.cos(sine/10))), 0.3)
+LEFTLEGLERP.C1 = LEFTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.3)
+RIGHTLEGLERP.C1 = RIGHTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(math.rad(0),0,0),.3)
+RIGHTARMLERP.C0 = RIGHTARMLERP.C0:lerp(CFrame.new(-1.5,.6,-.5) * CFrame.Angles(math.rad(32),math.rad(5 - .1 * math.sin(sine/12)),math.rad(40 - .5 * math.sin(sine/12))), 0.3)
+RIGHTARMLERP.C1 = RIGHTARMLERP.C1:lerp(CFrame.new(-.2,1.2,-.3),.3)
+LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1.5,.6,-.5) * CFrame.Angles(math.rad(30),math.rad(-5 + .1 * math.sin(sine/12)),math.rad(-40 + .5 * math.sin(sine/12))), 0.3)
+LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(.2,1.2,-.3),.3)
+RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.54, 1.4 + .1 * math.sin(sine/9), .4) * CFrame.Angles(math.rad(9 + 2 * math.cos(sine/9)), math.rad(0), math.rad(0)), 0.3)
+LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.54, 2.0 + .02 * math.sin(sine/9), 0.2 + .1 * math.sin(sine/9)) * CFrame.Angles(math.rad(25 + 5 * math.sin(sine/9)), math.rad(20), math.rad(0)), 0.3)
+elseif position == "Falling" and attacking == false and levitate == false then
+change = 1
+LEFTLEGLERP.C1 = LEFTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.1)
+RIGHTLEGLERP.C1 = RIGHTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(math.rad(0),0,0),.1)
+LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.4)
+RIGHTARMLERP.C1 = RIGHTARMLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.4)
+RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.5, 2, 0) * CFrame.Angles(math.rad(8), math.rad(4), math.rad(0)), 0.2)
+LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.5, 1.0, .9) * CFrame.Angles(math.rad(14), math.rad(-4), math.rad(0)), 0.2)
+LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1.6, 0.5, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(20)), 0.2)
+RIGHTARMLERP.C0 = RIGHTARMLERP.C0:lerp(CFrame.new(-1.6, 0.5, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(-20)), 0.2)
+elseif position == "Falling2" and attacking == false and levitate then
+change = 1
+ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(-20 - 1 * math.sin(sine/9)), math.rad(0 + 0 * math.cos(sine/8)), math.rad(0) + Root.RotVelocity.Y / 30, math.cos(10 * math.cos(sine/10))), 0.3)
+LEFTLEGLERP.C1 = LEFTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.3)
+RIGHTLEGLERP.C1 = RIGHTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(math.rad(0),0,0),.3)
+RIGHTARMLERP.C0 = RIGHTARMLERP.C0:lerp(CFrame.new(-1.5,.6,-.5) * CFrame.Angles(math.rad(32),math.rad(5 - .1 * math.sin(sine/12)),math.rad(40 - .5 * math.sin(sine/12))), 0.3)
+RIGHTARMLERP.C1 = RIGHTARMLERP.C1:lerp(CFrame.new(-.2,1.2,-.3),.3)
+LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1.5,.6,-.5) * CFrame.Angles(math.rad(30),math.rad(-5 + .1 * math.sin(sine/12)),math.rad(-40 + .5 * math.sin(sine/12))), 0.3)
+LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(.2,1.2,-.3),.3)
+RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.54, 1.4 + .1 * math.sin(sine/9), .4) * CFrame.Angles(math.rad(9 + 2 * math.cos(sine/9)), math.rad(0), math.rad(0)), 0.3)
+LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.54, 2.0 + .02 * math.sin(sine/9), 0.2 + .1 * math.sin(sine/9)) * CFrame.Angles(math.rad(25 + 5 * math.sin(sine/9)), math.rad(20), math.rad(0)), 0.3)
+elseif position == "Walking" and attacking == false and running == false then
+change = 1
+walking = true
+LEFTLEGLERP.C1 = LEFTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.1)
+RIGHTLEGLERP.C1 = RIGHTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(math.rad(0),0,0),.1)
+RIGHTARMLERP.C0 = RIGHTARMLERP.C0:lerp(CFrame.new(-1.5,.6,-.5) * CFrame.Angles(math.rad(32),math.rad(5 - .1 * math.sin(sine/12)),math.rad(40 - .5 * math.sin(sine/12))), 0.3)
+RIGHTARMLERP.C1 = RIGHTARMLERP.C1:lerp(CFrame.new(-.2,1.2,-.3),.3)
+LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1.5,.6,-.5) * CFrame.Angles(math.rad(30),math.rad(-5 + .1 * math.sin(sine/12)),math.rad(-40 + .5 * math.sin(sine/12))), 0.3)
+LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(.2,1.2,-.3),.3)
+ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(-10), math.rad(5 * math.cos(sine/7)), math.rad(0) + Root.RotVelocity.Y / 30, math.cos(25 * math.cos(sine/10))), 0.3)
+RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.5, 1.92 - 0.35 * math.cos(sine/8)/2.8, 0.2 - math.sin(sine/8)/3.4) * CFrame.Angles(math.rad(10) + -math.sin(sine/8)/2.3, math.rad(0)*math.cos(sine/1), math.rad(0)  + RightLeg.RotVelocity.Y / 30, math.cos(25 * math.cos(sine/8))), 0.3)
+LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.5, 1.92 + 0.35 * math.cos(sine/8)/2.8, 0.2 + math.sin(sine/8)/3.4) * CFrame.Angles(math.rad(10) - -math.sin(sine/8)/2.3, math.rad(0)*math.cos(sine/1), math.rad(0)  + LeftLeg.RotVelocity.Y / 30, math.cos(25 * math.cos(sine/8))), 0.3)
+elseif position == "Idle" and attacking == false and running == false and not levitate then
+change = .5
+ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, -.2 + -.1 * math.sin(sine/12), 0) * CFrame.Angles(math.rad(0),math.rad(25),math.rad(0)),.1)
+RIGHTARMLERP.C0 = RIGHTARMLERP.C0:lerp(CFrame.new(-1.5,.6,-.5) * CFrame.Angles(math.rad(32),math.rad(5 - 1 * math.sin(sine/12)),math.rad(40 - 2 * math.sin(sine/12))), 0.1)
+RIGHTARMLERP.C1 = RIGHTARMLERP.C1:lerp(CFrame.new(-.2,1.2,-.3),.1)
+LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1.5,.6,-.5) * CFrame.Angles(math.rad(30),math.rad(-5 + 1 * math.sin(sine/12)),math.rad(-40 + 2 * math.sin(sine/12))), 0.1)
+LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(.2,1.2,-.3),.1)
+RIGHTLEGLERP.C1 = RIGHTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(math.rad(0),0,0),.1)
+RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.3, 2 - .1 * math.sin(sine/12), 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(-10)), 0.1)
+LEFTLEGLERP.C1 = LEFTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.1)
+LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.3, 2.0 - .1 * math.sin(sine/12), 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(10)), 0.1)
+elseif position == "Idle2" and attacking == false and running == false then
+change = .75
+ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0,0,0) * CFrame.Angles(math.rad(0 - 3 * math.sin(sine/9)),0,0),.1)
+RIGHTLEGLERP.C1 = RIGHTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(math.rad(0),0,0),.1)
+LEFTLEGLERP.C1 = LEFTLEGLERP.C1:lerp(CFrame.new(-.2,.2,0) * CFrame.Angles(0,0,0),.1)
+LEFTARMLERP.C1 = CFrame.new(0,0,0) * CFrame.Angles(0,0,0)
+RIGHTARMLERP.C1 = CFrame.new(0,0,0) * CFrame.Angles(0,0,0)
+LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1.6, 0.8 - .1 * math.sin(sine/9), 0) * CFrame.Angles(math.rad(0), math.rad(0 + 3 * math.sin(sine/9)), math.rad(35 - 5 * math.sin(sine/9))), 0.4)
+RIGHTARMLERP.C0 = RIGHTARMLERP.C0:lerp(CFrame.new(-1.6, 0.8 - .1 * math.sin(sine/9), 0) * CFrame.Angles(math.rad(0), math.rad(0 - 3 * math.sin(sine/9)), math.rad(-35 + 5 * math.sin(sine/9))), 0.4)
+RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.54, 1.4 + .1 * math.sin(sine/9), .4) * CFrame.Angles(math.rad(9 + 2 * math.cos(sine/9)), math.rad(0), math.rad(0)), 0.4)
+LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.5, 2.0,0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(-10 + 2 * math.sin(sine/9))), 0.4)
+elseif position == "Walking2" and attacking == false and running == false then
+ws = 50
+ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, 0, 0) * CFrame.Angles(math.rad(-20 - 1 * math.sin(sine/9)), math.rad(0 + 0 * math.cos(sine/8)), math.rad(0) + Root.RotVelocity.Y / 30, math.cos(10 * math.cos(sine/10))), 0.3)
+LEFTLEGLERP.C1 = LEFTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(0,0,0),.3)
+RIGHTLEGLERP.C1 = RIGHTLEGLERP.C1:lerp(CFrame.new(0,0,0) * CFrame.Angles(math.rad(0),0,0),.3)
+RIGHTARMLERP.C0 = RIGHTARMLERP.C0:lerp(CFrame.new(-1.5,.6,-.5) * CFrame.Angles(math.rad(32),math.rad(5 - .1 * math.sin(sine/12)),math.rad(40 - .5 * math.sin(sine/12))), 0.3)
+RIGHTARMLERP.C1 = RIGHTARMLERP.C1:lerp(CFrame.new(-.2,1.2,-.3),.3)
+LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(1.5,.6,-.5) * CFrame.Angles(math.rad(30),math.rad(-5 + .1 * math.sin(sine/12)),math.rad(-40 + .5 * math.sin(sine/12))), 0.3)
+LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(.2,1.2,-.3),.3)
+RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.54, 1.4 + .1 * math.sin(sine/9), .4) * CFrame.Angles(math.rad(9 + 2 * math.cos(sine/9)), math.rad(0), math.rad(0)), 0.3)
+LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.54, 2.0 + .02 * math.sin(sine/9), 0.2 + .1 * math.sin(sine/9)) * CFrame.Angles(math.rad(25 + 5 * math.sin(sine/9)), math.rad(20), math.rad(0)), 0.3)
+elseif position == "Running" and attacking == false then
+change = 1
+RIGHTARMLERP.C1 = RIGHTARMLERP.C1:lerp(CFrame.new(1.24+.6*math.sin(sine/4)/1.4, 0.54, 0+0.8*math.sin(sine/4)) * CFrame.Angles(math.rad(6-140*math.sin(sine/4)/1.2), math.rad(0), math.rad(-20+70*math.sin(sine/4))), 0.3)
+RIGHTARMLERP.C0 = RIGHTARMLERP.C0:lerp(CFrame.new(0, .5, 0)*CFrame.Angles(math.rad(0),math.rad(0),math.rad(0)), 0.3)
+LEFTARMLERP.C1 = LEFTARMLERP.C1:lerp(CFrame.new(-1.24+.6*math.sin(sine/4)/1.4, 0.54, 0-0.8*math.sin(sine/4))*CFrame.Angles(math.rad(6+140*math.sin(sine/4)/1.2), math.rad(0), math.rad(20+70*math.sin(sine/4))), 0.3)
+LEFTARMLERP.C0 = LEFTARMLERP.C0:lerp(CFrame.new(0,.5,0)*CFrame.Angles(math.rad(0),math.rad(0),math.rad(0)),.3)
+ROOTLERP.C0 = ROOTLERP.C0:lerp(CFrame.new(0, -.2, 0) * CFrame.Angles(math.rad(-20 - 0 * math.sin(sine/4)), math.rad(0 + 6 * math.sin(sine/4)), math.rad(0) + Root.RotVelocity.Y / 30, math.sin(10 * math.sin(sine/4))), 0.3)
+RIGHTLEGLERP.C1 = RIGHTLEGLERP.C1:lerp(CFrame.new(0,0,-.2 + .5*-math.sin(sine/4)),.3)
+RIGHTLEGLERP.C0 = RIGHTLEGLERP.C0:lerp(CFrame.new(-0.5, 1.6+0.1*math.sin(sine/4),.7*-math.sin(sine/4)) * CFrame.Angles(math.rad(15+ -50 * math.sin(sine/4)),0,0),.3)
+LEFTLEGLERP.C1 = LEFTLEGLERP.C1:lerp(CFrame.new(0,0,-.2 + .5*math.sin(sine/4)),.3)
+LEFTLEGLERP.C0 = LEFTLEGLERP.C0:lerp(CFrame.new(0.5, 1.6-0.1*math.sin(sine/4),.7*math.sin(sine/4)) * CFrame.Angles(math.rad(15 + 50 * math.sin(sine/4)),0,0),.3)
+end
+swait()
+end
+end)
+anims()
+
+
+end)
+
+Section:NewButton("Pandora", "", function()
+end)
+
+Section:NewButton("Eyo Zen", "", function()
+end)
+
+Section:NewButton("Injustice", "", function()
+end)    
+
+Section:NewButton("Critical Mass", "", function()
+    newrig()
+-- Convert By Im Patrick
+-- Using Myworld Reinimate
+
+local character = Rig
+local humanoid = character:FindFirstChildOfClass("Humanoid")
+local torso = character:FindFirstChild("Torso") or character:FindFirstChild("UpperTorso")
+local root = character:FindFirstChild("HumanoidRootPart")
+local head = character:FindFirstChild("Head")
+local leftArm = character:FindFirstChild("Left Arm")
+local rightArm = character:FindFirstChild("Right Arm")
+local leftLeg = character:FindFirstChild("Left Leg")
+local rightLeg = character:FindFirstChild("Right Leg")
+
+humanoid.HipHeight = 2.3
+  
+-- Create welds for parts
+local function createWeld(part0, part1, c0, c1)
+    local weld = Instance.new("Weld", part0)
+    weld.Part0 = part0
+    weld.Part1 = part1
+    weld.C0 = c0
+    weld.C1 = c1
+    return weld
+end
+
+-- Initialize welds
+local rootWeld = createWeld(root, torso, CFrame.new(0, -1, 0), CFrame.new(0, -1, 0))
+local headWeld = createWeld(torso, head, CFrame.new(0, 1.5, 0), CFrame.new(0, -0.5, 0))
+local leftArmWeld = createWeld(torso, leftArm, CFrame.new(-1.5, 0.5, 0), CFrame.new(0, 0.5, 0))
+local rightArmWeld = createWeld(torso, rightArm, CFrame.new(1.5, 0.5, 0), CFrame.new(0, 0.5, 0))
+local leftLegWeld = createWeld(torso, leftLeg, CFrame.new(-0.5, -1, 0), CFrame.new(0, 1, 0))
+local rightLegWeld = createWeld(torso, rightLeg, CFrame.new(0.5, -1, 0), CFrame.new(0, 1, 0))
+
+-- Animation functions
+local function lerp(a, b, t)
+    return a + (b - a) * t
+end
+
+local function slerp(a, b, t)
+    local dot = a:Dot(b)
+    if dot > 0.99999 or dot < -0.99999 then
+        return t <= 0.5 and a or b
+    else
+        local r = math.acos(dot)
+        return (a * math.sin((1 - t) * r) + b * math.sin(t * r)) / math.sin(r)
+    end
+end
+
+local function matrixInterpolate(a, b, t)
+    local ax, ay, az, a00, a01, a02, a10, a11, a12, a20, a21, a22 = a:components()
+    local bx, by, bz, b00, b01, b02, b10, b11, b12, b20, b21, b22 = b:components()
+    local v0 = lerp(Vector3.new(ax, ay, az), Vector3.new(bx, by, bz), t)
+    local v1 = slerp(Vector3.new(a00, a01, a02), Vector3.new(b00, b01, b02), t)
+    local v2 = slerp(Vector3.new(a10, a11, a12), Vector3.new(b10, b11, b12), t)
+    local v3 = slerp(Vector3.new(a20, a21, a22), Vector3.new(b20, b21, b22), t)
+    return CFrame.new(
+        v0.x, v0.y, v0.z,
+        v1.x, v1.y, v1.z,
+        v2.x, v2.y, v2.z,
+        v3.x, v3.y, v3.z)
+end
+
+-- Animation states
+local animpose = "Idle"
+local lastanimpose = "Idle"
+local sine = 0
+local change = 1
+local jumping = false
+local freefalling = false
+local stanceToggle = "Normal"
+local Debounces = {
+    CanAttack = true,
+    NoIdl = false,
+    on = false
+}
+
+-- All animation sequences
+local function playRoarAnimation()
+    for i = 1, 30 do
+        rightArmWeld.C0 = matrixInterpolate(rightArmWeld.C0, CFrame.new(2.4, 2.4, 0) * CFrame.Angles(math.rad(170), math.rad(0), math.rad(-34)), 0.2)
+        leftArmWeld.C0 = matrixInterpolate(leftArmWeld.C0, CFrame.new(-2.4, 2.4, 0) * CFrame.Angles(math.rad(170), math.rad(0), math.rad(34)), 0.2)
+        headWeld.C0 = matrixInterpolate(headWeld.C0, CFrame.new(0, 3, 0.2) * CFrame.Angles(math.rad(16), math.rad(0), 0), 0.2)
+        rootWeld.C0 = matrixInterpolate(rootWeld.C0, CFrame.new(0, -1.2, 0) * CFrame.Angles(math.rad(20), math.rad(0), 0), 0.2)
+        leftLegWeld.C0 = matrixInterpolate(leftLegWeld.C0, CFrame.new(-1, -3, 0) * CFrame.Angles(math.rad(-20), math.rad(0), math.rad(0)), 0.2)
+        rightLegWeld.C0 = matrixInterpolate(rightLegWeld.C0, CFrame.new(1, -2, -1.4) * CFrame.Angles(math.rad(-20), math.rad(0), math.rad(0)), 0.2)
+        wait()
+    end
+end
+
+local function playGrabAnimation()
+    for i = 1, 18 do
+        rightArmWeld.C0 = matrixInterpolate(rightArmWeld.C0, CFrame.new(3, 0.9, 0) * CFrame.Angles(math.rad(90), math.rad(0), math.rad(36)), 0.2)
+        leftArmWeld.C0 = matrixInterpolate(leftArmWeld.C0, CFrame.new(-2.65, 0.9, -0.5) * CFrame.Angles(math.rad(70), math.rad(0), math.rad(20)), 0.2)
+        headWeld.C0 = matrixInterpolate(headWeld.C0, CFrame.new(0, 3, -0.2) * CFrame.Angles(math.rad(-14), math.rad(0), 0), 0.2)
+        rootWeld.C0 = matrixInterpolate(rootWeld.C0, CFrame.new(0, -1.8, 0) * CFrame.Angles(math.rad(-60), math.rad(0), 0), 0.2)
+        leftLegWeld.C0 = matrixInterpolate(leftLegWeld.C0, CFrame.new(-1, -3, -0.6) * CFrame.Angles(math.rad(60), math.rad(0), math.rad(0)), 0.2)
+        rightLegWeld.C0 = matrixInterpolate(rightLegWeld.C0, CFrame.new(1, -3, -0.6) * CFrame.Angles(math.rad(60), math.rad(0), math.rad(0)), 0.2)
+        wait()
+    end
+end
+
+local function playGroundPoundAnimation()
+    for i = 1, 40 do
+        rightArmWeld.C0 = matrixInterpolate(rightArmWeld.C0, CFrame.new(2.2, 0.9, -2.2) * CFrame.Angles(math.rad(90), math.rad(0), math.rad(-20)), 0.7)
+        leftArmWeld.C0 = matrixInterpolate(leftArmWeld.C0, CFrame.new(-3, 0.9, 1) * CFrame.Angles(math.rad(90), math.rad(0), math.rad(-50)), 0.7)
+        headWeld.C0 = matrixInterpolate(headWeld.C0, CFrame.new(0, 3, -0.2) * CFrame.Angles(math.rad(-14), math.rad(-20), 0), 0.6)
+        rootWeld.C0 = matrixInterpolate(rootWeld.C0, CFrame.new(0, -2.2, 0) * CFrame.Angles(math.rad(-80), math.rad(20), 0), 0.6)
+        leftLegWeld.C0 = matrixInterpolate(leftLegWeld.C0, CFrame.new(-1.2, -2, -1) * CFrame.Angles(math.rad(80), 0, math.rad(10)), 0.6)
+        rightLegWeld.C0 = matrixInterpolate(rightLegWeld.C0, CFrame.new(1.2, -2, -0.4) * CFrame.Angles(math.rad(80), 0, math.rad(30)), 0.6)
+        wait()
+    end
+end
+
+local function playJumpAnimation()
+    for i = 1, 20 do
+        rightArmWeld.C0 = matrixInterpolate(rightArmWeld.C0, CFrame.new(3, 0.6, -0.2) * CFrame.Angles(math.rad(45), math.rad(0), math.rad(32)), 0.2)
+        leftArmWeld.C0 = matrixInterpolate(leftArmWeld.C0, CFrame.new(-3, 1, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(-20)), 0.2)
+        headWeld.C0 = matrixInterpolate(headWeld.C0, CFrame.new(0, 3, -0.4) * CFrame.Angles(math.rad(-8), math.rad(-40), math.rad(-8)), 0.2)
+        rootWeld.C0 = matrixInterpolate(rootWeld.C0, CFrame.new(0, -3.2, 0) * CFrame.Angles(math.rad(-50), math.rad(40), math.rad(0)), 0.2)
+        leftLegWeld.C0 = matrixInterpolate(leftLegWeld.C0, CFrame.new(-0.8, 0.4, -1.6) * CFrame.Angles(math.rad(30), 0, math.rad(20)), 0.2)
+        rightLegWeld.C0 = matrixInterpolate(rightLegWeld.C0, CFrame.new(1.6, -2, 0) * CFrame.Angles(math.rad(-10), math.rad(-40), math.rad(0)), 0.2)
+        wait()
+    end
+end
+
+-- Keybind functions
+local function onKeyPress(input, gameProcessed)
+    if gameProcessed then return end
+    
+    if input.KeyCode == Enum.KeyCode.Q and Debounces.CanAttack then
+        Debounces.CanAttack = false
+        Debounces.NoIdl = true
+        Debounces.on = true
+        playRoarAnimation()
+        Debounces.on = false
+        Debounces.NoIdl = false
+        Debounces.CanAttack = true
+    elseif input.KeyCode == Enum.KeyCode.Z and Debounces.CanAttack then
+        Debounces.CanAttack = false
+        Debounces.NoIdl = true
+        Debounces.on = true
+        playGrabAnimation()
+        Debounces.on = false
+        Debounces.NoIdl = false
+        Debounces.CanAttack = true
+    elseif input.KeyCode == Enum.KeyCode.H and Debounces.CanAttack then
+        Debounces.CanAttack = false
+        Debounces.NoIdl = true
+        Debounces.on = true
+        playGroundPoundAnimation()
+        Debounces.on = false
+        Debounces.NoIdl = false
+        Debounces.CanAttack = true
+    elseif input.KeyCode == Enum.KeyCode.M and Debounces.CanAttack then
+        Debounces.CanAttack = false
+        Debounces.NoIdl = true
+        Debounces.on = true
+        playJumpAnimation()
+        Debounces.on = false
+        Debounces.NoIdl = false
+        Debounces.CanAttack = true
+    end
+end
+
+-- Connect key events
+game:GetService("UserInputService").InputBegan:Connect(onKeyPress)
+
+-- Animation loop
+game:GetService("RunService").RenderStepped:Connect(function()
+    -- Update animation state
+    if humanoid.Jump then
+        animpose = "Jumping"
+    elseif freefalling then
+        animpose = "Freefalling"
+    elseif (torso.Velocity * Vector3.new(1, 0, 1)).magnitude < 2 then
+        animpose = "Idle"
+    elseif (torso.Velocity * Vector3.new(1, 0, 1)).magnitude < 20 then
+        animpose = "Walking"
+    else
+        animpose = "Running"
+    end
+
+    -- Reset sine when animation changes
+    if animpose ~= lastanimpose then
+        sine = 0
+    end
+
+    -- Update animations
+    if not Debounces.on then
+        if animpose == "Idle" then
+            change = 0.5
+            if stanceToggle == "Normal" then
+                rightArmWeld.C0 = matrixInterpolate(rightArmWeld.C0, CFrame.new(3, 0.9, 0) * CFrame.Angles(math.rad(88 + 2 * math.cos(sine / 14)), math.rad(50), math.rad(0)), 0.2)
+                leftArmWeld.C0 = matrixInterpolate(leftArmWeld.C0, CFrame.new(-3, 0.9 + 0.1 * math.cos(sine / 14), 0) * CFrame.Angles(math.rad(50), math.rad(-30), math.rad(-40 - 2 * math.cos(sine / 14))), 0.2)
+                headWeld.C0 = matrixInterpolate(headWeld.C0, CFrame.new(0, 3, -0.2) * CFrame.Angles(math.rad(-14 + 1 * math.cos(sine / 14)), math.rad(40), 0), 0.2)
+                rootWeld.C0 = matrixInterpolate(rootWeld.C0, CFrame.new(0, -1.2, 0) * CFrame.Angles(0, math.rad(-40), 0), 0.2)
+                leftLegWeld.C0 = matrixInterpolate(leftLegWeld.C0, CFrame.new(-1.15, -3, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(-10)), 0.2)
+                rightLegWeld.C0 = matrixInterpolate(rightLegWeld.C0, CFrame.new(1.15, -3, 0) * CFrame.Angles(math.rad(0), math.rad(0), math.rad(10)), 0.2)
+            elseif stanceToggle == "Sitting" then
+                rightArmWeld.C0 = matrixInterpolate(rightArmWeld.C0, CFrame.new(3, 0.9, 0) * CFrame.Angles(math.rad(100 - 1 * math.cos(sine / 14)), math.rad(0), math.rad(20)), 0.2)
+                leftArmWeld.C0 = matrixInterpolate(leftArmWeld.C0, CFrame.new(-2, 0.9, -1) * CFrame.Angles(math.rad(78 + 1 * math.cos(sine / 14)), math.rad(0), math.rad(50)), 0.2)
+                headWeld.C0 = matrixInterpolate(headWeld.C0, CFrame.new(0, 3, -0.3) * CFrame.Angles(math.rad(-14 + 1 * math.cos(sine / 14)), math.rad(0), math.rad(0)), 0.2)
+                rootWeld.C0 = matrixInterpolate(rootWeld.C0, CFrame.new(0, -3, 0) * CFrame.Angles(math.rad(-10 + 1 * math.cos(sine / 14)), 0, math.rad(0)), 0.2)
+                leftLegWeld.C0 = matrixInterpolate(leftLegWeld.C0, CFrame.new(-1, -1, -2) * CFrame.Angles(math.rad(-10 - 1 * math.cos(sine / 14)), 0, 0), 0.2)
+                rightLegWeld.C0 = matrixInterpolate(rightLegWeld.C0, CFrame.new(1, -3, 0.6) * CFrame.Angles(math.rad(-50 - 1 * math.cos(sine / 14)), 0, 0), 0.2)
+            end
+        elseif animpose == "Walking" then
+            change = 1
+            rightArmWeld.C0 = matrixInterpolate(rightArmWeld.C0, CFrame.new(3, 0.9 + 0.1 * math.cos(sine / 7), -math.sin(sine / 14) / 2) * CFrame.Angles(math.sin(sine / 14) / -4, math.rad(1) + -math.sin(sine / 14) / 2, math.rad(30)), 0.1)
+            leftArmWeld.C0 = matrixInterpolate(leftArmWeld.C0, CFrame.new(-3, 0.9 + 0.1 * math.cos(sine / 7), -math.sin(sine / 14) / 2) * CFrame.Angles(math.sin(sine / 14) / 4, math.rad(1) + -math.sin(sine / 14) / 2, math.rad(-30)), 0.1)
+            headWeld.C0 = matrixInterpolate(headWeld.C0, CFrame.new(0, 3, 0) * CFrame.Angles(math.rad(-8 + 2 * math.cos(sine / 7)), math.rad(0), math.rad(0)), 0.2)
+            rootWeld.C0 = matrixInterpolate(rootWeld.C0, CFrame.new(0, -1.2 + 0.1 * math.cos(sine / 7), 0) * CFrame.Angles(math.rad(-4 + 2 * math.cos(sine / 7)), 0, math.rad(0)), 0.2)
+            leftLegWeld.C0 = matrixInterpolate(leftLegWeld.C0, CFrame.new(-1, -3 - 0.3 * math.cos(sine / 14) / 2, -0.05 + math.sin(sine / 14) / 2) * CFrame.Angles(math.rad(-18) + -math.sin(sine / 14) / 2.3, 0, 0), 0.1)
+            rightLegWeld.C0 = matrixInterpolate(rightLegWeld.C0, CFrame.new(1, -3 + 0.3 * math.cos(sine / 14) / 2, -0.05 + -math.sin(sine / 14) / 2) * CFrame.Angles(math.rad(-18) + math.sin(sine / 14) / 2.3, 0, 0), 0.1)
+        elseif animpose == "Running" then
+            change = 1
+            rightArmWeld.C0 = matrixInterpolate(rightArmWeld.C0, CFrame.new(3, 0.9, 0.5) * CFrame.Angles(math.rad(-10 - 20 * math.cos(sine / 4) / 2, math.rad(-40 + 10 * math.cos(sine / 4) / 2, math.rad(50 - 10 * math.cos(sine / 4) / 2)), 0.2)))
+            leftArmWeld.C0 = matrixInterpolate(leftArmWeld.C0, CFrame.new(-3, 0.9, 0.5) * CFrame.Angles(math.rad(10 + 20 * math.cos(sine / 4) / 2, math.rad(40 - 10 * math.cos(sine / 4) / 2, math.rad(-50 + 10 * math.cos(sine / 4) / 2)), 0.2)))
+            headWeld.C0 = matrixInterpolate(headWeld.C0, CFrame.new(0, 3, 0) * CFrame.Angles(math.rad(6 + 6 * math.cos(sine / 4) / 1.8), math.rad(0), math.rad(0)), 0.2)
+            rootWeld.C0 = matrixInterpolate(rootWeld.C0, CFrame.new(0, -1.2 + 0.2 * math.cos(sine / 4) / 2, 0) * CFrame.Angles(math.rad(-14 + 10 * math.cos(sine / 4) / 2), 0, math.rad(0)), 0.2)
+            leftLegWeld.C0 = matrixInterpolate(leftLegWeld.C0, CFrame.new(-1, -3 - 0.44 * math.cos(sine / 8) / 2.4, -0.15 + math.sin(sine / 8) / 1.5) * CFrame.Angles(math.rad(-20) + -math.sin(sine / 8) / 1.7, 0, 0), 0.4)
+            rightLegWeld.C0 = matrixInterpolate(rightLegWeld.C0, CFrame.new(1, -3 + 0.44 * math.cos(sine / 8) / 2.4, -0.15 + -math.sin(sine / 8) / 1.5) * CFrame.Angles(math.rad(-20) + math.sin(sine / 8) / 1.7, 0, 0), 0.4)
+        end
+    end
+
+    lastanimpose = animpose
+    sine = sine + change
+end)
+-- Freefall detection
+humanoid.FreeFalling:Connect(function(falling)
+    freefalling = falling
+end)
+-- Jump detection
+humanoid.Jumping:Connect(function(active)
+    jumping = active
+end)
+end)
+
+Section:NewButton("Angel", "", function()
+newrig()
+local lp = game:GetService("Players").LocalPlayer
+local rs = game:GetService("RunService")
+local stepped = rs.Stepped
+local heartbeat = rs.Heartbeat
+local S = setmetatable({},{__index = function(s,i) return game:service(i) end})
+local Plrs = S.Players
+local Plr = Plrs.LocalPlayer
+local Char = Rig
+local Hum = Char:FindFirstChildOfClass('Humanoid')
+local Root = Char:FindFirstChild('HumanoidRootPart')
+local Torso = Char.Torso
+local Head = Char.Head
+local RArm = Char["Right Arm"]
+local LArm = Char["Left Arm"]
+local RLeg = Char["Right Leg"]
+local LLeg = Char["Left Leg"]
+
+local Sine = 0
+local Change = 1
+
+--// Сокращенные переменные
+local CF = {N=CFrame.new,A=CFrame.Angles,fEA=CFrame.fromEulerAnglesXYZ}
+local V3 = {N=Vector3.new}
+local M = {C=math.cos,R=math.rad,S=math.sin,P=math.pi}
+
+--// Настройки
+local Frame_Speed = 60
+
+--// Очистка персонажа
+    
+--// Суставы
+local PlayerSize = 1
+local LS = Instance.new('Motor',Char)
+LS.Part0=Torso
+LS.Part1=LArm
+LS.C0 = CF.N(-1.5 * PlayerSize,0.5 * PlayerSize,0)
+LS.C1 = CF.N(0,.5 * PlayerSize,0)
+
+local RS = Instance.new('Motor',Char)
+RS.Part0=Torso
+RS.Part1=RArm
+RS.C0 = CF.N(1.5 * PlayerSize,0.5 * PlayerSize,0)
+RS.C1 = CF.N(0,.5 * PlayerSize,0)
+
+local NK = Instance.new('Motor',Char)
+NK.Part0=Torso
+NK.Part1=Head
+NK.C0 = CF.N(0,1.5 * PlayerSize,0)
+
+local LH = Instance.new('Motor',Char)
+LH.Part0=Torso
+LH.Part1=LLeg
+LH.C0 = CF.N(-.5 * PlayerSize,-1 * PlayerSize,0)
+LH.C1 = CF.N(0,1 * PlayerSize,0)
+
+local RH = Instance.new('Motor',Char)
+RH.Part0=Torso
+RH.Part1=RLeg
+RH.C0 = CF.N(.5 * PlayerSize,-1 * PlayerSize,0)
+RH.C1 = CF.N(0,1 * PlayerSize,0)
+
+local RJ = Instance.new('Motor',Char)
+RJ.Part0=Root
+RJ.Part1=Torso
+
+--// Искусственный Heartbeat
+local ArtificialHB = Instance.new("BindableEvent")
+ArtificialHB.Name = "Heartbeat"
+
+local tf = 0
+local allowframeloss = false
+local tossremainder = false
+local lastframe = tick()
+local frame = 1/Frame_Speed
+ArtificialHB:Fire()
+
+game:GetService("RunService").Heartbeat:connect(function(s, p)
+    tf = tf + s
+    if tf >= frame then
+        if allowframeloss then
+            ArtificialHB:Fire()
+            lastframe = tick()
+        else
+            for i = 1, math.floor(tf / frame) do
+                ArtificialHB:Fire()
+            end
+            lastframe = tick()
+        end
+        if tossremainder then
+            tf = 0
+        else
+            tf = tf - frame * math.floor(tf / frame)
+        end
+    end
+end)
+
+function swait(num)
+    if num == 0 or num == nil then
+        ArtificialHB.Event:wait()
+    else
+        for i = 0, num do
+            ArtificialHB.Event:wait()
+        end
+    end
+end
+
+--// Вспомогательные функции
+function clerp(startCF,endCF,alpha)
+    return startCF:lerp(endCF, alpha)
+end
+
+--// Основной цикл
+while true do
+    swait()
+    Sine = Sine + Change
+
+    Hum.HipHeight = 2
+    local isWalking = (Root.Velocity.magnitude > 1) and (math.abs(Root.Velocity.y) < 1)
+    local isJumpingOrFalling = math.abs(Root.Velocity.y) > 1
+
+    if isJumpingOrFalling then
+        local Alpha = .1
+        Change = .5
+        RJ.C0 = clerp(RJ.C0,CFrame.new(-0.00288401172, -0.186870754+.25*M.C(Sine/12), -0.184415281, 0.999970019, -0.00748212682, -0.00185852405, 0.00747100171, 0.880958676, 0.473134309, -0.00190276653, -0.473133981, 0.880988002)*CF.A(-M.R(10+5*M.S(Sine/12)),0,0),Alpha)
+        LH.C0 = clerp(LH.C0,CFrame.new(-0.455414772, -0.964986682, 0.0489092469, 0.999094486, 0.0300228745, 0.0301540364, -0.0396850631, 0.913133621, 0.405724436, -0.0153536471, -0.406553656, 0.913497925)*CF.A(0,M.R(2+7*M.C(Sine/12)),-M.R(2+7*M.C(Sine/12))),Alpha)
+        RH.C0 = clerp(RH.C0,CFrame.new(0.544458926, -0.964868069, 0.0333667099, 0.999092519, 0.0301021822, 0.0301397741, -0.0397526845, 0.913105845, 0.405780286, -0.015305927, -0.406610161, 0.913473606)*CF.A(0,-M.R(2+7*M.C(Sine/12)),M.R(2+7*M.C(Sine/12))),Alpha)
+        LS.C0 = clerp(LS.C0,CFrame.new(-1.36389351, 0.578486085+.1*M.C(Sine/12), 0.180077106, -0.966345549, 0.257006437, -0.0111429691, 0.189922124, 0.683552086, -0.704759717, -0.173510939, -0.683157504, -0.709358692)*CF.A(0,M.R(0+5*M.C(Sine/12)),M.R(0+5*M.C(Sine/12))),Alpha)
+        RS.C0 = clerp(RS.C0,CFrame.new(1.36815977, 0.578247666+.1*M.C(Sine/12), 0.13745755, 0.960469842, -0.278161407, 0.0111425305, 0.189813495, 0.683640122, 0.704703569, -0.203638792, -0.674731433, 0.709414363)*CF.A(0,-M.R(0+5*M.C(Sine/12)),M.R(0+5*M.C(Sine/12))),Alpha)
+        NK.C0 = clerp(NK.C0,CFrame.new(0.00204973482, 1.42796898, 0.117728591, 0.999878228, 0.00747100171, 0.0137089603, -9.46668442e-05, 0.880958676, -0.473193318, -0.0156122521, 0.473134309, 0.880851984),Alpha)
+    elseif isWalking then
+        local Alpha = .1
+        Change = .5
+        RJ.C0 = clerp(RJ.C0,CFrame.new(-0.00288401172, -0.186870754+.25*M.C(Sine/12), -0.184415281, 0.999970019, -0.00748212682, -0.00185852405, 0.00747100171, 0.880958676, 0.473134309, -0.00190276653, -0.473133981, 0.880988002)*CF.A(-M.R(10+5*M.S(Sine/12)),0,0),Alpha)
+        LH.C0 = clerp(LH.C0,CFrame.new(-0.455414772, -0.964986682, 0.0489092469, 0.999094486, 0.0300228745, 0.0301540364, -0.0396850631, 0.913133621, 0.405724436, -0.0153536471, -0.406553656, 0.913497925)*CF.A(0,M.R(2+7*M.C(Sine/12)),-M.R(2+7*M.C(Sine/12))),Alpha)
+        RH.C0 = clerp(RH.C0,CFrame.new(0.544458926, -0.964868069, 0.0333667099, 0.999092519, 0.0301021822, 0.0301397741, -0.0397526845, 0.913105845, 0.405780286, -0.015305927, -0.406610161, 0.913473606)*CF.A(0,-M.R(2+7*M.C(Sine/12)),M.R(2+7*M.C(Sine/12))),Alpha)
+        LS.C0 = clerp(LS.C0,CFrame.new(-1.36389351, 0.578486085+.1*M.C(Sine/12), 0.180077106, -0.966345549, 0.257006437, -0.0111429691, 0.189922124, 0.683552086, -0.704759717, -0.173510939, -0.683157504, -0.709358692)*CF.A(0,M.R(0+5*M.C(Sine/12)),M.R(0+5*M.C(Sine/12))),Alpha)
+        RS.C0 = clerp(RS.C0,CFrame.new(1.36815977, 0.578247666+.1*M.C(Sine/12), 0.13745755, 0.960469842, -0.278161407, 0.0111425305, 0.189813495, 0.683640122, 0.704703569, -0.203638792, -0.674731433, 0.709414363)*CF.A(0,-M.R(0+5*M.C(Sine/12)),M.R(0+5*M.C(Sine/12))),Alpha)
+        NK.C0 = clerp(NK.C0,CFrame.new(0.00204973482, 1.42796898, 0.117728591, 0.999878228, 0.00747100171, 0.0137089603, -9.46668442e-05, 0.880958676, -0.473193318, -0.0156122521, 0.473134309, 0.880851984),Alpha)
+    else
+        local Alpha = .1
+        Change = .5
+        RJ.C0 = clerp(RJ.C0,CFrame.new(3.20625471e-13, 0+.25*M.C(Sine/12), -6.20266655e-06, 0.999999225, 5.09317033e-11, 0, -4.38656264e-11, 0.999980271, -0.00628618058, 0, 0.00628617639, 0.999979496)*CF.A(-M.R(3+5*M.S(Sine/12)),0,0),Alpha)
+        LH.C0 = clerp(LH.C0,CFrame.new(-0.443078369, -0.366475701, -0.69529891, 0.999093771, 0.0300307292, 0.0301540978, -0.039692279, 0.913133621, 0.405723602, -0.0153505448, -0.406552792, 0.913497925)*CF.A(0,M.R(0+5*M.C(Sine/12)),M.R(0+5*M.C(Sine/12))),Alpha)
+        RH.C0 = clerp(RH.C0,CFrame.new(0.563508928, -0.975499094, 0.0143494867, 0.992422402, -0.121874072, 0.0156119959, 0.121789157, 0.992536128, 0.0062854127, -0.0162614994, -0.00433641672, 0.999858022)*CF.A(0,-M.R(0+5*M.C(Sine/12)),-M.R(0+5*M.C(Sine/12))),Alpha)
+        LS.C0 = clerp(LS.C0,CFrame.new(-1.09520316, 0.319447398+.1*M.C(Sine/12), 0.380316556, 0.862274766, -0.50140965, 0.071203351, 0.413908899, 0.77874434, 0.471420079, -0.291823745, -0.377021939, 0.879029453)*CF.A(0,M.R(0+5*M.C(Sine/12)),M.R(0+5*M.C(Sine/12))),Alpha)
+        RS.C0 = clerp(RS.C0,CFrame.new(1.38953996, 0.579314649+.1*M.C(Sine/12), 0.00156672322, 0.963396549, -0.267624378, 0.0156119959, 0.267557263, 0.9635216, 0.0062854127, -0.0167246256, -0.0018782462, 0.999858022)*CF.A(0,-M.R(0+5*M.C(Sine/12)),M.R(0+5*M.C(Sine/12))),Alpha)
+        NK.C0 = clerp(NK.C0,CFrame.new(-7.09252117e-06, 1.4989512, -0.0144005567, 0.999999225, 3.67464963e-07, -1.62050128e-07, -3.56478267e-07, 0.997964799, 0.0637686923, 1.8440187e-07, -0.0637686551, 0.997963905),Alpha)
+    end
+end
+end)
+
+Section:NewButton("Sonic", "", function()
+end)    
+
+Section:NewButton("Server Admin", "", function()
+  newrig()
+Player = game.Players.LocalPlayer
+PlayerGui = Player.PlayerGui
+Cam = workspace.CurrentCamera
+Character = Rig
+Humanoid = Character.Humanoid
+RootPart = Character.HumanoidRootPart
+Torso = Character["Torso"]
+Head = Character["Head"]
+RightArm = Character["Right Arm"]
+LeftArm = Character["Left Arm"]
+RightLeg = Character["Right Leg"]
+LeftLeg = Character["Left Leg"]
+RootJoint = RootPart["RootJoint"]
+Neck = Torso["Neck"]
+RightShoulder = Torso["Right Shoulder"]
+LeftShoulder = Torso["Left Shoulder"]
+RightHip = Torso["Right Hip"]
+LeftHip = Torso["Left Hip"]
+Mouse = Player:GetMouse()
+
+IT = Instance.new
+CF = CFrame.new
+VT = Vector3.new
+RAD = math.rad
+C3 = Color3.new
+UD2 = UDim2.new
+BRICKC = BrickColor.new
+ANGLES = CFrame.Angles
+EULER = CFrame.fromEulerAnglesXYZ
+COS = math.cos
+ACOS = math.acos
+SIN = math.sin
+ASIN = math.asin
+ABS = math.abs
+MRANDOM = math.random
+FLOOR = math.floor
+
+--//=================================\\
+--|| 	      USEFUL VALUES
+--\\=================================//
+
+Animation_Speed = 3
+Frame_Speed = 1 / 60 -- (1 / 30) OR (1 / 60)
+local Speed = 16
+local ROOTC0 = CF(0, 0, 0) * ANGLES(RAD(-90), RAD(0), RAD(180))
+local NECKC0 = CF(0, 1, 0) * ANGLES(RAD(-90), RAD(0), RAD(180))
+local RIGHTSHOULDERC0 = CF(-0.5, 0, 0) * ANGLES(RAD(0), RAD(90), RAD(0))
+local LEFTSHOULDERC0 = CF(0.5, 0, 0) * ANGLES(RAD(0), RAD(-90), RAD(0))
+local DAMAGEMULTIPLIER = 1
+local ANIM = "Idle"
+local ATTACK = false
+local EQUIPPED = false
+local HOLD = false
+local COMBO = 1
+local Rooted = false
+local SINE = 0
+local KEYHOLD = false
+local CHANGE = 2 / Animation_Speed
+local WALKINGANIM = false
+local VALUE1 = false
+local VALUE2 = false
+local ROBLOXIDLEANIMATION = IT("Animation")
+ROBLOXIDLEANIMATION.Name = "Roblox Idle Animation"
+ROBLOXIDLEANIMATION.AnimationId = "http://www.roblox.com/asset/?id=180435571"
+local ANIMATOR = Humanoid.Animator
+local ANIMATE = Character.Animate
+local UNANCHOR = true
+
+--//=================================\\
+--\\=================================//
+
+
+--//=================================\\
+--|| SAZERENOS' ARTIFICIAL HEARTBEAT
+--\\=================================//
+
+ArtificialHB = Instance.new("BindableEvent", script)
+ArtificialHB.Name = "ArtificialHB"
+
+script:WaitForChild("ArtificialHB")
+
+frame = Frame_Speed
+tf = 0
+allowframeloss = false
+tossremainder = false
+lastframe = tick()
+script.ArtificialHB:Fire()
+
+game:GetService("RunService").Heartbeat:connect(function(s, p)
+	tf = tf + s
+	if tf >= frame then
+		if allowframeloss then
+			ArtificialHB:Fire()
+			lastframe = tick()
+		else
+			for i = 1, math.floor(tf / frame) do
+				ArtificialHB:Fire()
+			end
+			lastframe = tick()
+		end
+		if tossremainder then
+			tf = 0
+		else
+			tf = tf - frame * math.floor(tf / frame)
+		end
+	end
+end)
+
+--//=================================\\
+--\\=================================//
+
+--//=================================\\
+--|| 	      SOME FUNCTIONS
+--\\=================================//
+
+function Raycast(POSITION, DIRECTION, RANGE, IGNOREDECENDANTS)
+	return workspace:FindPartOnRay(Ray.new(POSITION, DIRECTION.unit * RANGE), IGNOREDECENDANTS)
+end
+
+function Swait(NUMBER)
+	if NUMBER == 0 or NUMBER == nil then
+		ArtificialHB.Event:wait()
+	else
+		for i = 1, NUMBER do
+			ArtificialHB.Event:wait()
+		end
+	end
+end
+
+function QuaternionFromCFrame(cf)
+	local mx, my, mz, m00, m01, m02, m10, m11, m12, m20, m21, m22 = cf:components()
+	local trace = m00 + m11 + m22
+	if trace > 0 then 
+		local s = math.sqrt(1 + trace)
+		local recip = 0.5 / s
+		return (m21 - m12) * recip, (m02 - m20) * recip, (m10 - m01) * recip, s * 0.5
+	else
+		local i = 0
+		if m11 > m00 then
+			i = 1
+		end
+		if m22 > (i == 0 and m00 or m11) then
+			i = 2
+		end
+		if i == 0 then
+			local s = math.sqrt(m00 - m11 - m22 + 1)
+			local recip = 0.5 / s
+			return 0.5 * s, (m10 + m01) * recip, (m20 + m02) * recip, (m21 - m12) * recip
+		elseif i == 1 then
+			local s = math.sqrt(m11 - m22 - m00 + 1)
+			local recip = 0.5 / s
+			return (m01 + m10) * recip, 0.5 * s, (m21 + m12) * recip, (m02 - m20) * recip
+		elseif i == 2 then
+			local s = math.sqrt(m22 - m00 - m11 + 1)
+			local recip = 0.5 / s return (m02 + m20) * recip, (m12 + m21) * recip, 0.5 * s, (m10 - m01) * recip
+		end
+	end
+end
+
+function QuaternionToCFrame(px, py, pz, x, y, z, w)
+	local xs, ys, zs = x + x, y + y, z + z
+	local wx, wy, wz = w * xs, w * ys, w * zs
+	local xx = x * xs
+	local xy = x * ys
+	local xz = x * zs
+	local yy = y * ys
+	local yz = y * zs
+	local zz = z * zs
+	return CFrame.new(px, py, pz, 1 - (yy + zz), xy - wz, xz + wy, xy + wz, 1 - (xx + zz), yz - wx, xz - wy, yz + wx, 1 - (xx + yy))
+end
+
+function QuaternionSlerp(a, b, t)
+	local cosTheta = a[1] * b[1] + a[2] * b[2] + a[3] * b[3] + a[4] * b[4]
+	local startInterp, finishInterp;
+	if cosTheta >= 0.0001 then
+		if (1 - cosTheta) > 0.0001 then
+			local theta = ACOS(cosTheta)
+			local invSinTheta = 1 / SIN(theta)
+			startInterp = SIN((1 - t) * theta) * invSinTheta
+			finishInterp = SIN(t * theta) * invSinTheta
+		else
+			startInterp = 1 - t
+			finishInterp = t
+		end
+	else
+		if (1 + cosTheta) > 0.0001 then
+			local theta = ACOS(-cosTheta)
+			local invSinTheta = 1 / SIN(theta)
+			startInterp = SIN((t - 1) * theta) * invSinTheta
+			finishInterp = SIN(t * theta) * invSinTheta
+		else
+			startInterp = t - 1
+			finishInterp = t
+		end
+	end
+	return a[1] * startInterp + b[1] * finishInterp, a[2] * startInterp + b[2] * finishInterp, a[3] * startInterp + b[3] * finishInterp, a[4] * startInterp + b[4] * finishInterp
+end
+
+function Clerp(a, b, t)
+	local qa = {QuaternionFromCFrame(a)}
+	local qb = {QuaternionFromCFrame(b)}
+	local ax, ay, az = a.x, a.y, a.z
+	local bx, by, bz = b.x, b.y, b.z
+	local _t = 1 - t
+	return QuaternionToCFrame(_t * ax + t * bx, _t * ay + t * by, _t * az + t * bz, QuaternionSlerp(qa, qb, t))
+end
+
+Debris = game:GetService("Debris")
+
+--//=================================\\
+--||			DAMAGING
+--\\=================================//
+
+function ApplyDamage(Humanoid,Damage)
+    -- This function can be filled in to apply damage to a single target
+end
+
+function ApplyAoE(POSITION,RANGE,MINDMG,MAXDMG,FLING,INSTAKILL)
+    -- This function can be filled in to apply area-of-effect damage
+end
+
+--//=================================\\
+--||	ATTACK FUNCTIONS AND STUFF
+--\\=================================//
+
+local Fling = function()
+	ATTACK = true
+	Rooted = false
+	RightShoulder.C0 = RightShoulder.C0 * CF(0,-0.12,0)
+	ApplyAoE(RootPart.Position-VT(0,4,0),75,5,12,550,false)
+	ATTACK = false
+end
+
+local TpTo = function()
+	ATTACK = true
+	Rooted = true
+	RightShoulder.C0 = RightShoulder.C0 * CF(0,-0.12,0)
+	RootPart.CFrame = CF(Mouse.Hit.p+VT(0,3.15,0)) * ANGLES(RAD(0), RAD(RootPart.Orientation.Y), RAD(0))
+	wait(0.1)
+	ATTACK = false
+	Rooted = false
+end
+
+local Hurl = function()
+	ATTACK = true
+	Rooted = false
+    -- Animation for the Hurl attack
+	for i=0, 1.7, 0.1 / Animation_Speed do
+		Swait()
+		RootJoint.C0 = Clerp(RootJoint.C0,ROOTC0 * CF(0 - 0.04 * COS(SINE / 24), 0, 0 + 0.05 * COS(SINE / 12)) * ANGLES(RAD(0), RAD(0 - 2.5 * COS(SINE / 24)), RAD(0)), 1 / Animation_Speed)
+		Neck.C0 = Clerp(Neck.C0, NECKC0 * CF(0, 0, 0 + ((1) - 1)) * ANGLES(RAD(15 - 7 * COS(SINE / 12)), RAD(0), RAD(0)), 1 / Animation_Speed)
+		RightShoulder.C0 = Clerp(RightShoulder.C0, CF(1.3, 0.75 + 0.1 * COS(SINE / 12), -0.1) * ANGLES(RAD(145), RAD(0), RAD(-15)) * ANGLES(RAD(0), RAD(15), RAD(0)) * RIGHTSHOULDERC0, 1 / Animation_Speed)
+		LeftShoulder.C0 = Clerp(LeftShoulder.C0, CF(-1.1, 0.35 + 0.1 * COS(SINE / 12), 0.2) * ANGLES(RAD(-44 - 1.5 * COS(SINE / 12)), RAD(0), RAD(45)) * ANGLES(RAD(0), RAD(-25), RAD(0)) * LEFTSHOULDERC0, 1 / Animation_Speed)
+		RightHip.C0 = Clerp(RightHip.C0, CF(1, -1 + 0.035 * COS(SINE / 24) - 0.05 * COS(SINE / 12), 0) * ANGLES(RAD(0), RAD(85), RAD(0)) * ANGLES(RAD(-2 - 2.5 * COS(SINE / 24)), RAD(0), RAD(0)), 1 / Animation_Speed)
+		LeftHip.C0 = Clerp(LeftHip.C0, CF(-1, -1 - 0.035 * COS(SINE / 24) - 0.05 * COS(SINE / 12), 0) * ANGLES(RAD(0), RAD(-85), RAD(0)) * ANGLES(RAD(-2 + 2.5 * COS(SINE / 24)), RAD(0), RAD(0)), 1 / Animation_Speed)
+	end
+	ATTACK = false
+	Rooted = false
+end
+
+local Kill = function()
+	local TARGET = Mouse.Target
+	if TARGET ~= nil then
+		if TARGET.Parent:FindFirstChildOfClass("Humanoid") then
+			local HUM = TARGET.Parent:FindFirstChildOfClass("Humanoid")
+			local ROOT = HUM.Parent:FindFirstChild("HumanoidRootPart") or HUM.Parent:FindFirstChild("Torso")
+			if ROOT and HUM.Health > 0 then
+				ATTACK = true
+				Rooted = false
+				RightShoulder.C0 = RightShoulder.C0 * CF(0,-0.12,0)
+				HUM.Health = 0
+				ATTACK = false
+				Rooted = false
+			end
+		end
+	end
+end
+
+local ATTACKS = {{";Fling","z",Fling},{";TpTo","x",TpTo},{";Hurl","c",Hurl},{";Kill","v",Kill}}
+
+Mouse.KeyDown:connect(function(NEWKEY)
+	KEYHOLD = true
+	if ATTACK == false then
+		for E = 1, #ATTACKS do
+			if NEWKEY == ATTACKS[E][2] then
+				ATTACKS[E][3]()
+			end
+		end
+	end
+end)
+
+Mouse.KeyUp:connect(function(NEWKEY)
+	KEYHOLD = false
+end)
+
+function unanchor()
+	for _, c in pairs(Character:GetChildren()) do
+		if c:IsA("BasePart") and c ~= RootPart then
+			c.Anchored = false
+		end
+	end
+	if UNANCHOR == true then
+		RootPart.Anchored = false
+	else
+		RootPart.Anchored = true
+	end
+end
+
+Humanoid.Changed:connect(function(Jump)
+	if Jump == "Jump" and (Disable_Jump == true) then
+		Humanoid.Jump = false
+	end
+end)
+
+while true do
+	Swait()
+	SINE = SINE + CHANGE
+	local TORSOVELOCITY = (RootPart.Velocity * VT(1, 0, 1)).magnitude
+	local TORSOVERTICALVELOCITY = RootPart.Velocity.y
+	local HITFLOOR = Raycast(RootPart.Position, (CF(RootPart.Position, RootPart.Position + VT(0, -1, 0))).lookVector, 4, Character)
+	local WALKSPEEDVALUE = 8 / (Humanoid.WalkSpeed / 16)
+	
+	if ANIM == "Walk" and TORSOVELOCITY > 1 then
+		RootJoint.C1 = Clerp(RootJoint.C1, ROOTC0 * CF(0, 0, 0.1 * COS(SINE / (WALKSPEEDVALUE/2))) * ANGLES(RAD(0), RAD(0), RAD(0)), 2 * (Humanoid.WalkSpeed / 16) / Animation_Speed)
+		Neck.C1 = Clerp(Neck.C1, CF(0, -0.5, 0) * ANGLES(RAD(-90), RAD(0), RAD(180)) * ANGLES(RAD(0), RAD(0), RAD(0) - Head.RotVelocity.Y / 30), 0.2 * (Humanoid.WalkSpeed / 16) / Animation_Speed)
+		RightHip.C1 = Clerp(RightHip.C1, CF(0.5, 0.875 - 0.125 * SIN(SINE / WALKSPEEDVALUE) - 0.15 * COS(SINE / WALKSPEEDVALUE*2), 0.25 * SIN(SINE / WALKSPEEDVALUE)) * ANGLES(RAD(0), RAD(90), RAD(0)) * ANGLES(RAD(0), RAD(0), RAD(10+50 * COS(SINE / WALKSPEEDVALUE))), 0.6 / Animation_Speed)
+		LeftHip.C1 = Clerp(LeftHip.C1, CF(-0.5, 0.875 + 0.125 * SIN(SINE / WALKSPEEDVALUE) - 0.15 * COS(SINE / WALKSPEEDVALUE*2), -0.25 * SIN(SINE / WALKSPEEDVALUE)) * ANGLES(RAD(0), RAD(-90), RAD(0)) * ANGLES(RAD(0), RAD(0), RAD(-10+50 * COS(SINE / WALKSPEEDVALUE))), 0.6 / Animation_Speed)
+	elseif (ANIM ~= "Walk") or (TORSOVELOCITY < 1) then
+		RootJoint.C1 = Clerp(RootJoint.C1, ROOTC0 * CF(0, 0, 0) * ANGLES(RAD(0), RAD(0), RAD(0)), 0.2 / Animation_Speed)
+		Neck.C1 = Clerp(Neck.C1, CF(0, -0.5, 0) * ANGLES(RAD(-90), RAD(0), RAD(180)) * ANGLES(RAD(0), RAD(0), RAD(0)), 0.2 / Animation_Speed)
+		RightHip.C1 = Clerp(RightHip.C1, CF(0.5, 1, 0) * ANGLES(RAD(0), RAD(90), RAD(0)) * ANGLES(RAD(0), RAD(0), RAD(0)), 0.7 / Animation_Speed)
+		LeftHip.C1 = Clerp(LeftHip.C1, CF(-0.5, 1, 0) * ANGLES(RAD(0), RAD(-90), RAD(0)) * ANGLES(RAD(0), RAD(0), RAD(0)), 0.7 / Animation_Speed)
+	end
+	
+	if TORSOVERTICALVELOCITY > 1 and HITFLOOR == nil then
+		ANIM = "Jump"
+		if ATTACK == false then
+			RootJoint.C0 = Clerp(RootJoint.C0, ROOTC0 * CF(0, 0, 0) * ANGLES(RAD(-5), RAD(0), RAD(0)), 1 / Animation_Speed)
+			Neck.C0 = Clerp(Neck.C0, NECKC0 * CF(0, 0 , 0 + ((1) - 1)) * ANGLES(RAD(-25), RAD(0), RAD(0)), 1 / Animation_Speed)
+			RightShoulder.C0 = Clerp(RightShoulder.C0, CF(1.5, 0.5, 0) * ANGLES(RAD(-35), RAD(0), RAD(25 + 10 * COS(SINE / 12))) * RIGHTSHOULDERC0, 1 / Animation_Speed)
+			LeftShoulder.C0 = Clerp(LeftShoulder.C0, CF(-1.5, 0.5, 0) * ANGLES(RAD(-35), RAD(0), RAD(-25 - 10 * COS(SINE / 12))) * LEFTSHOULDERC0, 1 / Animation_Speed)
+			RightHip.C0 = Clerp(RightHip.C0, CF(1, -0.4, -0.6) * ANGLES(RAD(1), RAD(90), RAD(0)) * ANGLES(RAD(-1 * SIN(SINE / 6)), RAD(0), RAD(0)), 1 / Animation_Speed)
+			LeftHip.C0 = Clerp(LeftHip.C0, CF(-1, -1, 0) * ANGLES(RAD(0), RAD(-85), RAD(0)) * ANGLES(RAD(-1 * SIN(SINE / 6)), RAD(0), RAD(0)), 1 / Animation_Speed)
+		end
+	elseif TORSOVERTICALVELOCITY < -1 and HITFLOOR == nil then
+		ANIM = "Fall"
+		if ATTACK == false then
+			RootJoint.C0 = Clerp(RootJoint.C0, ROOTC0 * CF(0, 0, 0) * ANGLES(RAD(15), RAD(0), RAD(0)), 1 / Animation_Speed)
+			Neck.C0 = Clerp(Neck.C0, NECKC0 * CF(0, 0 , 0 + ((1) - 1)) * ANGLES(RAD(15), RAD(0), RAD(0)), 1 / Animation_Speed)
+			RightShoulder.C0 = Clerp(RightShoulder.C0, CF(1.5, 0.5, 0) * ANGLES(RAD(35 - 4 * COS(SINE / 6)), RAD(0), RAD(45 + 10 * COS(SINE / 12))) * RIGHTSHOULDERC0, 1 / Animation_Speed)
+			LeftShoulder.C0 = Clerp(LeftShoulder.C0, CF(-1.5, 0.5, 0) * ANGLES(RAD(35 - 4 * COS(SINE / 6)), RAD(0), RAD(-45 - 10 * COS(SINE / 12))) * LEFTSHOULDERC0, 1 / Animation_Speed)
+			RightHip.C0 = Clerp(RightHip.C0, CF(1, -0.3, -0.7) * ANGLES(RAD(-25 + 5 * SIN(SINE / 12)), RAD(90), RAD(0)) * ANGLES(RAD(-1 * SIN(SINE / 6)), RAD(0), RAD(0)), 1 / Animation_Speed)
+			LeftHip.C0 = Clerp(LeftHip.C0, CF(-1, -0.8, -0.3) * ANGLES(RAD(-10), RAD(-80), RAD(0)) * ANGLES(RAD(-1 * SIN(SINE / 6)), RAD(0), RAD(0)), 1 / Animation_Speed)
+		end
+	elseif TORSOVELOCITY < 1 and HITFLOOR ~= nil then
+		ANIM = "Idle"
+		if ATTACK == false then
+			RootJoint.C0 = Clerp(RootJoint.C0,ROOTC0 * CF(0 - 0.04 * COS(SINE / 24), 0, 0 + 0.05 * COS(SINE / 12)) * ANGLES(RAD(0), RAD(0 - 2.5 * COS(SINE / 24)), RAD(0)), 1 / Animation_Speed)
+			Neck.C0 = Clerp(Neck.C0, NECKC0 * CF(0, 0, 0 + ((1) - 1)) * ANGLES(RAD(3 - 7 * COS(SINE / 12)), RAD(0), RAD(0)), 1 / Animation_Speed)
+			RightShoulder.C0 = Clerp(RightShoulder.C0, CF(1.1, 0.35 + 0.1 * COS(SINE / 12), 0.2) * ANGLES(RAD(-45 - 1.5 * COS(SINE / 12)), RAD(0), RAD(-45)) * ANGLES(RAD(0), RAD(25), RAD(0)) * RIGHTSHOULDERC0, 1 / Animation_Speed)
+			LeftShoulder.C0 = Clerp(LeftShoulder.C0, CF(-1.1, 0.35 + 0.1 * COS(SINE / 12), 0.2) * ANGLES(RAD(-44 - 1.5 * COS(SINE / 12)), RAD(0), RAD(45)) * ANGLES(RAD(0), RAD(-25), RAD(0)) * LEFTSHOULDERC0, 1 / Animation_Speed)
+			RightHip.C0 = Clerp(RightHip.C0, CF(1, -1 + 0.035 * COS(SINE / 24) - 0.05 * COS(SINE / 12), 0) * ANGLES(RAD(0), RAD(85), RAD(0)) * ANGLES(RAD(-2 - 2.5 * COS(SINE / 24)), RAD(0), RAD(0)), 1 / Animation_Speed)
+			LeftHip.C0 = Clerp(LeftHip.C0, CF(-1, -1 - 0.035 * COS(SINE / 24) - 0.05 * COS(SINE / 12), 0) * ANGLES(RAD(0), RAD(-85), RAD(0)) * ANGLES(RAD(-2 + 2.5 * COS(SINE / 24)), RAD(0), RAD(0)), 1 / Animation_Speed)
+		end
+	elseif TORSOVELOCITY > 1 and HITFLOOR ~= nil then
+		ANIM = "Walk"
+		if ATTACK == false then
+			RootJoint.C0 = Clerp(RootJoint.C0,ROOTC0 * CF(0, 0, -0.05) * ANGLES(RAD(5), RAD(0), RAD(-7 * COS(SINE / (WALKSPEEDVALUE)))), 1 / Animation_Speed)
+			Neck.C0 = Clerp(Neck.C0, NECKC0 * CF(0, 0, 0 + ((1) - 1)) * ANGLES(RAD(5 - 1 * SIN(SINE / (WALKSPEEDVALUE / 2))), RAD(0), RAD(7 * COS(SINE / (WALKSPEEDVALUE)))), 1 / Animation_Speed)
+			RightShoulder.C0 = Clerp(RightShoulder.C0, CF(1.5, 0.5, 0) * ANGLES(RAD(60 * COS(SINE / WALKSPEEDVALUE)), RAD(-5), RAD(5)) * RIGHTSHOULDERC0, 1 / Animation_Speed)
+			LeftShoulder.C0 = Clerp(LeftShoulder.C0, CF(-1.5, 0.5, 0) * ANGLES(RAD(-60 * COS(SINE / WALKSPEEDVALUE)), RAD(5), RAD(-5)) * LEFTSHOULDERC0, 1 / Animation_Speed)
+			RightHip.C0 = Clerp(RightHip.C0, CF(1 , -1, 0) * ANGLES(RAD(0), RAD(85), RAD(0)) * ANGLES(RAD(0), RAD(0), RAD(0)), 2 / Animation_Speed)
+			LeftHip.C0 = Clerp(LeftHip.C0, CF(-1, -1, 0) * ANGLES(RAD(0), RAD(-85), RAD(0)) * ANGLES(RAD(0), RAD(0), RAD(0)), 2 / Animation_Speed)
+		end
+	end
+	
+	if Rooted == false then
+		Disable_Jump = false
+		Humanoid.WalkSpeed = Speed
+	elseif Rooted == true then
+		Disable_Jump = true
+		Humanoid.WalkSpeed = 0
+	end
+end
+
+end)    
